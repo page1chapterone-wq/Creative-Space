@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Essay Writing Studio</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18202a;
+      --muted: #657080;
+      --line: #d9dfdf;
+      --paper: #fbfaf6;
+      --sage: #47746a;
+      --sage-strong: #24564d;
+      --coral: #c8664b;
+      --gold: #d69a2d;
+      --sky: #e7f1f3;
+      --violet: #716095;
+      --shadow: 0 18px 50px rgba(23, 31, 38, 0.14);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.45) 1px, transparent 1px) 0 0 / 34px 34px,
+        linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px) 0 0 / 34px 34px,
+        linear-gradient(135deg, #f7efe3 0%, #e4eff0 46%, #f8f3ea 100%);
+    }
+
+    button, textarea, input, select { font: inherit; }
+    button { border: 0; cursor: pointer; }
+
+    .app { min-height: 100vh; display: grid; grid-template-rows: auto 1fr; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px clamp(16px, 3vw, 34px);
+      border-bottom: 1px solid rgba(88, 100, 102, 0.22);
+      background: rgba(251, 250, 246, 0.82);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 240px; }
+
+    .mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at 30% 28%, #fff7df 0 18%, transparent 19%),
+        linear-gradient(140deg, var(--sage), #2a4d64 58%, var(--coral));
+      box-shadow: 0 10px 24px rgba(39, 74, 83, 0.25);
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .mark::after {
+      content: "";
+      width: 18px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 99px;
+      position: absolute;
+      right: 8px;
+      bottom: 10px;
+      transform: rotate(-23deg);
+    }
+
+    h1 { font-size: clamp(1.15rem, 2vw, 1.7rem); line-height: 1; margin: 0; letter-spacing: 0; }
+    h2, h3 { margin: 0; letter-spacing: 0; }
+    h2 { font-size: 1rem; }
+    h3 { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    p { margin: 0; }
+
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin: 4px 0 0; }
+
+    .top-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+
+    .metric {
+      min-width: 86px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.74);
+      text-align: center;
+    }
+
+    .metric strong { display: block; font-size: 1rem; }
+    .metric span { display: block; font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .ghost, .solid {
+      min-height: 40px;
+      border-radius: 8px;
+      padding: 0 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    .ghost { color: var(--sage-strong); background: rgba(255, 255, 255, 0.76); border: 1px solid var(--line); }
+    .solid { color: #fff; background: var(--sage-strong); box-shadow: 0 10px 24px rgba(36, 86, 77, 0.24); }
+    .ghost:hover, .solid:hover, .chip:hover, .prompt-card:hover { transform: translateY(-1px); }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(330px, 1.1fr) minmax(320px, 500px);
+      gap: clamp(14px, 2vw, 24px);
+      padding: clamp(16px, 3vw, 34px);
+      align-items: stretch;
+    }
+
+    .writer {
+      min-height: calc(100vh - 126px);
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(109, 122, 124, 0.24);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .mode-row, .title-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.74);
+    }
+
+    .mode-row { grid-template-columns: 220px 1fr; align-items: center; }
+
+    .mode-help {
+      color: var(--muted);
+      line-height: 1.4;
+      font-size: 0.94rem;
+    }
+
+    .title-row input {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      font-size: clamp(1.35rem, 3vw, 2.15rem);
+      font-weight: 760;
+      line-height: 1.15;
+      outline: none;
+      min-width: 0;
+    }
+
+    .title-row input::placeholder, textarea::placeholder { color: #8b948f; }
+
+    select, .search, .rubric-note {
+      height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 0 10px;
+      outline: none;
+      min-width: 0;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 520px;
+      resize: none;
+      border: 0;
+      outline: none;
+      padding: clamp(18px, 3vw, 34px);
+      background:
+        linear-gradient(rgba(24, 32, 42, 0.055) 1px, transparent 1px) 0 32px / 100% 32px,
+        var(--paper);
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.05rem, 1.2vw, 1.2rem);
+      line-height: 32px;
+    }
+
+    .writing-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 13px 16px;
+      border-top: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.76);
+      color: var(--muted);
+      font-size: 0.92rem;
+      flex-wrap: wrap;
+    }
+
+    .draft-tools { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .side {
+      min-height: calc(100vh - 126px);
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 12px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.58);
+      padding: 6px;
+      border: 1px solid rgba(109, 122, 124, 0.24);
+      border-radius: 8px;
+    }
+
+    .tab { min-height: 38px; border-radius: 6px; background: transparent; color: var(--muted); font-weight: 700; }
+    .tab.active { color: var(--ink); background: #fff; box-shadow: 0 8px 20px rgba(23, 31, 38, 0.11); }
+
+    .panel {
+      overflow: auto;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(109, 122, 124, 0.24);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-section { padding: 16px; border-bottom: 1px solid var(--line); }
+    .panel-section:last-child { border-bottom: 0; }
+
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+
+    .select-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+
+    .chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .chip {
+      min-height: 34px;
+      border-radius: 8px;
+      padding: 7px 10px;
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      box-shadow: 0 6px 12px rgba(23, 31, 38, 0.05);
+      transition: transform 160ms ease, border-color 160ms ease;
+    }
+
+    .chip[data-kind="sensory"] { border-color: rgba(71, 116, 106, 0.36); background: #f3faf7; }
+    .chip[data-kind="emotion"] { border-color: rgba(198, 102, 75, 0.34); background: #fff6f2; }
+    .chip[data-kind="action"] { border-color: rgba(113, 96, 149, 0.34); background: #f7f4ff; }
+    .chip[data-kind="formal"] { border-color: rgba(214, 154, 45, 0.42); background: #fffaf0; }
+
+    .prompt-card {
+      width: 100%;
+      text-align: left;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 13px;
+      margin-bottom: 10px;
+      color: var(--ink);
+      transition: transform 160ms ease, border-color 160ms ease;
+    }
+
+    .prompt-card strong { display: block; margin-bottom: 6px; font-size: 0.95rem; }
+    .prompt-card span { display: block; color: var(--muted); line-height: 1.4; }
+
+    .phrase-list, .outline-grid, .rubric-list { display: grid; gap: 10px; }
+
+    .bank-context {
+      flex: 1 0 100%;
+      margin-bottom: 12px;
+      padding: 11px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(71, 116, 106, 0.24);
+      background: #f3faf7;
+      color: var(--sage-strong);
+      line-height: 1.35;
+      font-size: 0.92rem;
+    }
+
+    .phrase, .outline-item, .rubric-card {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .phrase { grid-template-columns: 1fr auto; align-items: center; }
+    .phrase p { line-height: 1.35; }
+
+    .mini {
+      width: 34px;
+      height: 34px;
+      border-radius: 7px;
+      color: var(--sage-strong);
+      background: var(--sky);
+      font-weight: 800;
+    }
+
+    .outline-item { grid-template-columns: 36px 1fr; align-items: start; }
+
+    .number {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      background: #eef6f3;
+      color: var(--sage-strong);
+      font-weight: 800;
+    }
+
+    .outline-item label { display: block; color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .outline-item input { width: 100%; border: 0; outline: 0; color: var(--ink); background: transparent; min-height: 28px; }
+
+    .rubric-summary {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 14px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid var(--line);
+      margin-bottom: 12px;
+    }
+
+    .score-ring {
+      min-height: 88px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: linear-gradient(145deg, #eef6f3, #fff8e8);
+      border: 1px solid rgba(71, 116, 106, 0.22);
+      text-align: center;
+    }
+
+    .score-ring strong { display: block; font-size: 1.9rem; line-height: 1; }
+    .score-ring span { color: var(--muted); font-size: 0.8rem; }
+
+    .rubric-card header {
+      position: static;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      backdrop-filter: none;
+      display: grid;
+      grid-template-columns: 1fr 142px;
+      align-items: center;
+    }
+
+    .rubric-card small { color: var(--muted); line-height: 1.45; }
+
+    .rubric-card select { width: 142px; }
+
+    .score-explanation {
+      padding: 10px 11px;
+      border-radius: 8px;
+      background: #fff8e8;
+      border: 1px solid rgba(214, 154, 45, 0.28);
+      color: #5f4521;
+      line-height: 1.4;
+      font-size: 0.92rem;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 7px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .checklist label {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 8px;
+      color: var(--ink);
+      line-height: 1.35;
+    }
+
+    .level-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      padding: 4px 9px;
+      border-radius: 8px;
+      background: #eef6f3;
+      color: var(--sage-strong);
+      font-weight: 800;
+      font-size: 0.82rem;
+    }
+
+    .source-note {
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 0.9rem;
+    }
+
+    .rubric-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .switch-label {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .auto-notes {
+      color: var(--muted);
+      line-height: 1.4;
+      font-size: 0.92rem;
+    }
+
+    .hidden { display: none; }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      background: #17222a;
+      color: #fff;
+      padding: 11px 14px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+      z-index: 20;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 1080px) {
+      main { grid-template-columns: 1fr; }
+      .writer, .side { min-height: auto; }
+      textarea { min-height: 440px; }
+    }
+
+    @media (max-width: 720px) {
+      header, .top-actions, .title-row, .writing-footer { align-items: stretch; }
+      header { flex-direction: column; }
+      .top-actions, .draft-tools { width: 100%; }
+      .metric, .ghost, .solid { flex: 1 1 auto; }
+      .title-row, .mode-row, .select-row, .rubric-summary { grid-template-columns: 1fr; }
+      .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="mark" aria-hidden="true"></div>
+        <div>
+          <h1>Essay Writing Studio</h1>
+          <p class="subtitle">Plan, draft, and self-check different writing forms.</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <div class="metric"><strong id="wordCount">0</strong><span>Words</span></div>
+        <div class="metric"><strong id="sentenceCount">0</strong><span>Sentences</span></div>
+        <div class="metric"><strong id="rubricTotalTop">0/20</strong><span>Rubric</span></div>
+        <button class="ghost" id="copyDraft" type="button">Copy Draft</button>
+        <button class="solid" id="newPrompt" type="button">New Prompt</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="writer" aria-label="Essay draft">
+        <div class="mode-row">
+          <select id="essayType" aria-label="Essay type">
+            <option value="narrative">Narrative story</option>
+            <option value="report">Report</option>
+            <option value="descriptive">Descriptive essay</option>
+            <option value="persuasive">Persuasive essay</option>
+            <option value="expository">Expository essay</option>
+          </select>
+          <p class="mode-help" id="modeHelp"></p>
+        </div>
+        <div class="title-row">
+          <input id="essayTitle" aria-label="Essay title" placeholder="Choose a title or write your own" />
+          <button class="ghost" id="suggestTitle" type="button">Suggest Title</button>
+        </div>
+        <textarea id="draft" spellcheck="true" placeholder="Begin writing here. Use the side panel for prompts, words, phrases, planning, and self-checking."></textarea>
+        <div class="writing-footer">
+          <span id="saveStatus">Ready</span>
+          <div class="draft-tools">
+            <button class="ghost" id="insertOutline" type="button">Insert Plan</button>
+            <button class="solid" id="markFromDraft" type="button">Mark Draft</button>
+            <button class="ghost" id="openRubric" type="button">Open Self-Check</button>
+            <button class="ghost" id="insertRubric" type="button">Insert Self-Check</button>
+            <button class="ghost" id="clearDraft" type="button">Clear</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side" aria-label="Writing helpers">
+        <nav class="tabs" aria-label="Helper sections">
+          <button class="tab active" type="button" data-tab="prompts">Prompts</button>
+          <button class="tab" type="button" data-tab="words">Words</button>
+          <button class="tab" type="button" data-tab="phrases">Phrases</button>
+          <button class="tab" type="button" data-tab="plan">Plan</button>
+          <button class="tab" type="button" data-tab="rubric">Rubric</button>
+        </nav>
+
+        <section class="panel">
+          <div id="prompts" class="tab-panel">
+            <div class="panel-section">
+              <div class="panel-head">
+                <h2>Suggested Titles</h2>
+                <button class="mini" id="shuffleTitles" type="button" title="Refresh titles">R</button>
+              </div>
+              <div id="titleList"></div>
+            </div>
+            <div class="panel-section">
+              <div class="panel-head">
+                <h2>Prompts</h2>
+                <button class="mini" id="shufflePrompts" type="button" title="Refresh prompts">R</button>
+              </div>
+              <div id="promptList"></div>
+            </div>
+          </div>
+
+          <div id="words" class="tab-panel hidden">
+            <div class="panel-section">
+              <div class="panel-head"><h2>Word Bank</h2></div>
+              <div class="select-row">
+                <select id="wordCategory" aria-label="Word category">
+                  <option value="all">All words</option>
+                  <option value="sensory">Sensory detail</option>
+                  <option value="emotion">Emotion</option>
+                  <option value="action">Action</option>
+                  <option value="setting">Setting</option>
+                  <option value="formal">Formal report words</option>
+                </select>
+                <input class="search" id="wordSearch" placeholder="Search words" aria-label="Search words" />
+              </div>
+              <div class="chip-grid" id="wordGrid"></div>
+            </div>
+          </div>
+
+          <div id="phrases" class="tab-panel hidden">
+            <div class="panel-section">
+              <div class="panel-head"><h2>Language Use</h2></div>
+              <div class="select-row">
+                <select id="phraseCategory" aria-label="Phrase category"></select>
+                <button class="ghost" id="addPhraseSet" type="button">Add Set</button>
+              </div>
+              <div class="phrase-list" id="phraseList"></div>
+            </div>
+          </div>
+
+          <div id="plan" class="tab-panel hidden">
+            <div class="panel-section">
+              <div class="panel-head">
+                <h2 id="planTitle">Writing Plan</h2>
+                <button class="mini" id="resetOutline" type="button" title="Reset plan">R</button>
+              </div>
+              <div class="outline-grid" id="outlineGrid"></div>
+            </div>
+          </div>
+
+          <div id="rubric" class="tab-panel hidden">
+            <div class="panel-section">
+              <div class="panel-head">
+                <h2>Self-Check Rubric</h2>
+                <span class="level-badge" id="rubricLevel">Unsatisfactory</span>
+              </div>
+              <div class="rubric-summary">
+                <div class="score-ring"><div><strong id="rubricTotal">0</strong><span>out of 20</span></div></div>
+                <div>
+                  <p class="source-note" id="rubricGuide"></p>
+                  <div class="rubric-controls">
+                    <button class="solid" id="autoMark" type="button">Mark Draft</button>
+                    <label class="switch-label"><input id="liveAutoCheck" type="checkbox" checked> Check while typing</label>
+                  </div>
+                </div>
+              </div>
+              <p class="bank-context" id="autoSummary">Write or paste a draft, then use Mark Draft for an estimated self-check.</p>
+              <div class="rubric-list" id="rubricList"></div>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const stateKey = "essayWritingStudio.v2";
+
+    const achievement = [
+      "Unsatisfactory", "Makes an Attempt", "Emerging", "Progressing", "Proficient", "Exemplary"
+    ];
+
+    const scoreExplanations = {
+      content: [
+        "The writing does not yet show the required ideas or details for this task.",
+        "A small attempt is present, but important information is missing or unclear.",
+        "Some relevant ideas are included, but they need more development and support.",
+        "The main ideas are mostly present, though some details need to be clearer or fuller.",
+        "The writing meets the standard with clear, relevant, and developed content.",
+        "The content is rich, complete, and purposeful, with details that strongly suit the task."
+      ],
+      language: [
+        "The language does not yet communicate the ideas clearly.",
+        "Some useful words or phrases are attempted, but the language often weakens meaning.",
+        "The language is partly suitable, but it needs more precise wording and stronger control.",
+        "The language is generally clear, with some effective words or phrases.",
+        "The language suits the form well and helps the reader understand the writing.",
+        "The language is vivid, precise, and consistently effective for the form."
+      ],
+      organisation: [
+        "The writing is not yet arranged in a clear order.",
+        "There is a beginning attempt at order, but ideas are mostly jumbled.",
+        "Some order is present, but paragraphing or sequencing needs work.",
+        "The writing is mostly easy to follow, with some weak transitions or paragraph choices.",
+        "The writing is clearly sequenced and paragraphed for the form.",
+        "The organisation is smooth, purposeful, and easy for the reader to follow."
+      ],
+      grammar: [
+        "Errors make the writing very difficult to read.",
+        "Many errors are present, so the first goal is to create clear simple sentences.",
+        "The writing is understandable, but frequent errors still interrupt fluency.",
+        "Errors are present, but the meaning is usually clear.",
+        "Grammar and mechanics are mostly accurate and support fluent reading.",
+        "Control of grammar and mechanics is strong, accurate, and polished."
+      ]
+    };
+
+    const typeData = {
+      narrative: {
+        label: "Narrative story",
+        help: "Tell a story with setting, characters, conflict, rising action, climax, falling action, and resolution.",
+        titles: ["The Moment Everything Shifted", "A Lesson I Did Not Expect", "The Day I Found My Voice", "When Courage Arrived Quietly", "The Memory That Changed Me"],
+        prompts: [
+          ["A turning point", "Write about a day when one decision changed how you saw yourself."],
+          ["A difficult choice", "Tell the story of a time when doing the right thing was not easy."],
+          ["A remembered sound", "Begin with a sound you cannot forget and build the story around it."],
+          ["A quiet victory", "Write about a moment that may have looked small but felt important."]
+        ],
+        plan: [["Hook", "A vivid first image, sound, or question"], ["Setting", "Where and when the story begins"], ["Conflict", "The problem, challenge, or important choice"], ["Climax", "The most exciting or tense moment"], ["Resolution", "How the story ends and what changed"]],
+        rubricGuide: "Guided by the SEA narrative rubric: 0-5 marks each for Content, Language Use, Organisation, and Grammar and Mechanics.",
+        checklist: {
+          content: ["Time and place are clear", "Characters are developed through description, action, or dialogue", "Plot has exposition, rising action, climax, falling action, and resolution"],
+          language: ["Descriptive language creates clear images", "Figurative language is used effectively", "Sensory details appeal to sight, sound, touch, taste, or smell"],
+          organisation: ["Events are sequenced clearly", "Paragraphs separate new events, speakers, or ideas", "Transitions help the story move smoothly"],
+          grammar: ["Sentences are complete", "Dialogue and punctuation are accurate", "Spelling, capitalisation, tense, and agreement are checked"]
+        }
+      },
+      report: {
+        label: "Report",
+        help: "Write a clear formal account of what happened, where and when it happened, who was involved, and how it ended.",
+        titles: ["Report on a School Incident", "Report on a Lunchtime Accident", "Report on a Class Visit", "Report on a Community Event", "Report on a Lost Item"],
+        prompts: [
+          ["School incident", "Write a report about an incident that took place during lunchtime."],
+          ["Class visit", "Write a report about a class trip, including what happened and who was involved."],
+          ["Sports day", "Write a report about an event that happened during sports day."],
+          ["Community problem", "Write a report about a problem observed in your community."]
+        ],
+        plan: [["Heading", "State what the report is about"], ["Date, time, place", "Give exact details early"], ["Persons involved", "Name or identify people clearly"], ["What happened", "Give events in order"], ["Ending", "State the outcome or action taken"]],
+        rubricGuide: "Guided by the SEA report rubric: 0-5 marks each for Content, Language Use, Organisation, and Grammar and Mechanics.",
+        checklist: {
+          content: ["Date, time, and place are included", "Persons involved are clearly identified", "Main events and relevant supporting details are included"],
+          language: ["Formal Standard English is used", "Tone is factual rather than story-like", "Unnecessary figurative language and slang are avoided"],
+          organisation: ["Introduction, body, and ending are clear", "Events are in chronological order", "Paragraphs separate major details"],
+          grammar: ["Sentences are clear and complete", "Capital letters are used for names and sentence beginnings", "Punctuation, spelling, agreement, and tense are checked"]
+        }
+      },
+      descriptive: {
+        label: "Descriptive essay",
+        help: "Paint a clear picture of a person, place, object, or moment using precise details and sensory language.",
+        titles: ["The Place I Remember Most", "A Person I Will Never Forget", "The Most Unusual Room", "A Morning at the Market", "The View from My Window"],
+        prompts: [
+          ["A special place", "Describe a place that feels important to you."],
+          ["A memorable person", "Describe someone using appearance, actions, voice, and habits."],
+          ["A busy scene", "Describe a market, playground, beach, or street at its busiest moment."],
+          ["An object with meaning", "Describe an object and show why it matters."]
+        ],
+        plan: [["Main impression", "What feeling should the reader get?"], ["Sight", "Colours, shapes, movement, distance"], ["Sound", "Voices, silence, rhythm, noise"], ["Other senses", "Smell, touch, taste, temperature"], ["Reflection", "Why this subject matters"]],
+        rubricGuide: "Uses the SEA criteria as a self-check frame, with descriptive writing focused on vivid, organised detail.",
+        checklist: {
+          content: ["The subject is clear and well developed", "Important features are selected, not listed randomly", "Details help the reader understand why it matters"],
+          language: ["Precise adjectives and verbs are used", "Sensory details are strong", "Figurative language supports the description"],
+          organisation: ["Details are grouped logically", "The writing moves smoothly from one focus to another", "Paragraphs help the reader follow the description"],
+          grammar: ["Sentences are varied and complete", "Punctuation and capitalisation are accurate", "Spelling and word forms are checked"]
+        }
+      },
+      persuasive: {
+        label: "Persuasive essay",
+        help: "Take a clear position, support it with reasons and examples, and convince the reader respectfully.",
+        titles: ["Why Students Should Read More", "The Case for Cleaner School Grounds", "Why Every Child Should Learn to Swim", "Should Homework Be Reduced?", "A Better Way to Use Break Time"],
+        prompts: [
+          ["School improvement", "Persuade your principal to make one useful change at school."],
+          ["A healthy habit", "Persuade classmates to adopt a healthy habit."],
+          ["Community issue", "Persuade readers to help solve a community problem."],
+          ["A fair rule", "Argue for or against a rule that affects students."]
+        ],
+        plan: [["Position", "State your opinion clearly"], ["Reason 1", "Give your strongest reason and example"], ["Reason 2", "Add another reason with evidence"], ["Opposing view", "Respond respectfully to another viewpoint"], ["Conclusion", "End with a clear call to action"]],
+        rubricGuide: "Uses the SEA criteria as a self-check frame, with persuasive writing focused on reasons, evidence, and clear position.",
+        checklist: {
+          content: ["A clear opinion is stated", "Reasons and examples support the opinion", "A counterpoint or reader concern is addressed"],
+          language: ["Persuasive phrases are used appropriately", "Tone is confident and respectful", "Words are precise and convincing"],
+          organisation: ["Introduction, body, and conclusion are clear", "Each paragraph has one main idea", "Transitions connect reasons"],
+          grammar: ["Sentences are complete and varied", "Punctuation and capitalisation are accurate", "Spelling, agreement, and tense are checked"]
+        }
+      },
+      expository: {
+        label: "Expository essay",
+        help: "Explain a topic clearly with facts, steps, examples, or reasons so the reader understands it better.",
+        titles: ["How to Prepare for an Exam", "Why Water Conservation Matters", "The Importance of Teamwork", "How Plants Grow", "What Makes a Good Friend"],
+        prompts: [
+          ["Explain a process", "Explain how to prepare for an important school event."],
+          ["Explain a value", "Explain why honesty, teamwork, or responsibility is important."],
+          ["Explain a problem", "Explain a common problem and possible solutions."],
+          ["Explain a topic", "Teach younger students about a topic you know well."]
+        ],
+        plan: [["Topic", "What are you explaining?"], ["Main idea 1", "First fact, step, or reason"], ["Main idea 2", "Second fact, step, or reason"], ["Main idea 3", "Third fact, step, or reason"], ["Conclusion", "Sum up the explanation clearly"]],
+        rubricGuide: "Uses the SEA criteria as a self-check frame, with expository writing focused on clarity, relevant details, and logical order.",
+        checklist: {
+          content: ["The topic is clear", "Main ideas are relevant and explained", "Facts, examples, or steps support the explanation"],
+          language: ["Explanatory words are clear and precise", "Tone is informative", "Definitions or examples are easy to understand"],
+          organisation: ["Ideas are ordered logically", "Paragraphs separate main ideas", "Transitions show sequence, cause, or comparison"],
+          grammar: ["Sentences are complete and clear", "Punctuation and capitalisation are accurate", "Spelling, agreement, and tense are checked"]
+        }
+      }
+    };
+
+    const wordBank = [
+      ["sensory", "glimmering"], ["sensory", "hushed"], ["sensory", "gritty"], ["sensory", "fragrant"], ["sensory", "muffled"], ["sensory", "radiant"],
+      ["emotion", "uneasy"], ["emotion", "hopeful"], ["emotion", "restless"], ["emotion", "astonished"], ["emotion", "determined"], ["emotion", "relieved"],
+      ["action", "hesitated"], ["action", "stumbled"], ["action", "whispered"], ["action", "clutched"], ["action", "noticed"], ["action", "exhaled"],
+      ["setting", "corridor"], ["setting", "shoreline"], ["setting", "doorway"], ["setting", "market"], ["setting", "classroom"], ["setting", "rain-soaked street"],
+      ["formal", "incident"], ["formal", "occurred"], ["formal", "witnessed"], ["formal", "reported"], ["formal", "concluded"], ["formal", "recommendation"],
+      ["formal", "chronological"], ["formal", "evidence"], ["formal", "persons involved"], ["formal", "action taken"]
+    ];
+
+    const titleThemes = [
+      {
+        name: "storm or weather",
+        keywords: ["storm", "rain", "water", "shore", "window", "morning", "weather"],
+        words: ["thunderous", "dripping", "misty", "damp", "wind-lashed", "silver-grey", "sodden", "rumbling"],
+        phrases: ["The sky growled like a warning.", "Rain tapped the roof like impatient fingers.", "The wind pushed against us like an invisible wall.", "The clouds folded over the day like a dark blanket."]
+      },
+      {
+        name: "courage, fear, or change",
+        keywords: ["courage", "fear", "shifted", "voice", "choice", "steps", "changed", "turning", "lesson"],
+        words: ["trembling", "breathless", "steady", "sharp", "warm", "heavy", "fluttering", "silent"],
+        phrases: ["My fear sat in my chest like a stone.", "Courage arrived like a small light in a dark room.", "My heart hammered like a drum.", "The moment opened like a door I had to walk through."]
+      },
+      {
+        name: "memory or reflection",
+        keywords: ["memory", "remember", "lesson", "place", "person", "forget", "important"],
+        words: ["faded", "familiar", "tender", "quiet", "golden", "distant", "soft", "bittersweet"],
+        phrases: ["The memory returned like an old song.", "The place held my thoughts like a secret box.", "Her words stayed with me like footprints in wet sand.", "That moment glowed in my mind like a small lamp."]
+      },
+      {
+        name: "school or incident",
+        keywords: ["school", "incident", "lunchtime", "class", "homework", "exam", "students", "break"],
+        words: ["crowded", "echoing", "noisy", "chalky", "hurried", "tense", "bright", "restless"],
+        phrases: ["The corridor buzzed like a beehive.", "The bell sliced through the noise.", "The classroom grew quiet like a held breath.", "The news spread across the yard like ripples in water."]
+      },
+      {
+        name: "market, street, or community",
+        keywords: ["market", "street", "community", "grounds", "cleaner", "event"],
+        words: ["bustling", "spicy", "dusty", "sunlit", "crowded", "colourful", "warm", "lively"],
+        phrases: ["The market moved like a river of colour.", "Voices rose and fell like music.", "The street shimmered under the afternoon sun.", "The crowd gathered like waves around the scene."]
+      },
+      {
+        name: "nature, plants, or growth",
+        keywords: ["plants", "grow", "garden", "tree", "water", "conservation"],
+        words: ["leafy", "fresh", "earthy", "green", "cool", "sprouting", "dew-bright", "rooted"],
+        phrases: ["The leaves opened like tiny hands.", "The garden breathed in the morning light.", "Water slipped through the soil like a hidden path.", "The plant stood like a small promise."]
+      },
+      {
+        name: "friendship or teamwork",
+        keywords: ["friend", "teamwork", "team", "swim", "sports"],
+        words: ["cheerful", "encouraging", "warm", "quick", "splashing", "steady", "bright", "breathless"],
+        phrases: ["Their encouragement lifted me like a wave.", "We moved together like parts of one machine.", "A smile spread across the group like sunlight.", "My worry melted like ice in warm hands."]
+      }
+    ];
+
+    const phraseBank = {
+      narrative: {
+        "Opening": ["I did not know it yet, but that morning would stay with me.", "The first thing I noticed was...", "At the time, it seemed like an ordinary day."],
+        "Transition": ["As the minutes passed, the mood began to change.", "For a moment, I stood between two choices.", "Then, without warning, everything moved faster."],
+        "Reflection": ["Looking back, I understand why that moment mattered.", "What I learned was quieter than I expected.", "That experience changed the way I saw..."]
+      },
+      report: {
+        "Opening": ["This report gives an account of...", "The incident occurred on...", "The persons involved were..."],
+        "Sequence": ["According to the order of events...", "Shortly after this occurred...", "The matter ended when..."],
+        "Formal ending": ["The matter was reported to...", "The following action was taken...", "It is recommended that..."]
+      },
+      descriptive: {
+        "Sensory focus": ["The first detail that stood out was...", "The air seemed to carry...", "Every corner of the place suggested..."],
+        "Movement": ["My eyes moved from... to...", "Beyond that, I noticed...", "Near the edge of the scene..."],
+        "Reflection": ["This place remains important because...", "What made it unforgettable was...", "Even now, I can still picture..."]
+      },
+      persuasive: {
+        "Position": ["I strongly believe that...", "There are several reasons why...", "This change would benefit..."],
+        "Evidence": ["One important reason is...", "For example...", "This shows that..."],
+        "Conclusion": ["For these reasons, I urge...", "The best decision would be...", "If we act now..."]
+      },
+      expository: {
+        "Introduction": ["This essay explains...", "To understand this topic, we must first...", "The main idea is..."],
+        "Development": ["First...", "Another important point is...", "This happens because..."],
+        "Conclusion": ["In summary...", "These points show that...", "Understanding this helps us..."]
+      }
+    };
+
+    const els = {
+      essayType: document.querySelector("#essayType"),
+      modeHelp: document.querySelector("#modeHelp"),
+      draft: document.querySelector("#draft"),
+      essayTitle: document.querySelector("#essayTitle"),
+      wordCount: document.querySelector("#wordCount"),
+      sentenceCount: document.querySelector("#sentenceCount"),
+      saveStatus: document.querySelector("#saveStatus"),
+      toast: document.querySelector("#toast"),
+      titleList: document.querySelector("#titleList"),
+      promptList: document.querySelector("#promptList"),
+      wordGrid: document.querySelector("#wordGrid"),
+      wordCategory: document.querySelector("#wordCategory"),
+      wordSearch: document.querySelector("#wordSearch"),
+      phraseCategory: document.querySelector("#phraseCategory"),
+      phraseList: document.querySelector("#phraseList"),
+      outlineGrid: document.querySelector("#outlineGrid"),
+      planTitle: document.querySelector("#planTitle"),
+      rubricList: document.querySelector("#rubricList"),
+      rubricTotal: document.querySelector("#rubricTotal"),
+      rubricTotalTop: document.querySelector("#rubricTotalTop"),
+      rubricLevel: document.querySelector("#rubricLevel"),
+      rubricGuide: document.querySelector("#rubricGuide"),
+      autoMark: document.querySelector("#autoMark"),
+      liveAutoCheck: document.querySelector("#liveAutoCheck"),
+      autoSummary: document.querySelector("#autoSummary")
+    };
+
+    function currentData() { return typeData[els.essayType.value]; }
+    function sample(items, count) { return [...items].sort(() => Math.random() - 0.5).slice(0, count); }
+    function unique(items) { return [...new Set(items)]; }
+
+    function titleText() {
+      return els.essayTitle.value.trim() || currentData().titles[0];
+    }
+
+    function titleTheme() {
+      const title = titleText().toLowerCase();
+      return titleThemes.find(theme => theme.keywords.some(keyword => title.includes(keyword))) || {
+        name: "general essay topic",
+        words: ["clear", "vivid", "memorable", "bright", "quiet", "careful", "detailed", "striking"],
+        phrases: ["The idea stood out like a bright mark on a page.", "The moment unfolded like a scene in a film.", "The details gathered like pieces of a picture.", "The topic opened like a path for the reader."]
+      };
+    }
+
+    function bankContextText() {
+      return `Title lens: ${titleText()} - showing sensory words and figurative phrases for ${titleTheme().name}.`;
+    }
+
+    function clampScore(score) {
+      return Math.max(0, Math.min(5, Math.round(score)));
+    }
+
+    function textProfile() {
+      const text = els.draft.value.trim();
+      const lower = text.toLowerCase();
+      const words = text ? text.split(/\s+/).filter(Boolean) : [];
+      const sentences = text ? text.split(/[.!?]+/).filter(part => part.trim().length > 0) : [];
+      const paragraphs = text ? text.split(/\n\s*\n/).filter(part => part.trim().length > 0) : [];
+      const sensoryWords = unique([...titleTheme().words, ...wordBank.filter(([kind]) => kind === "sensory").map(([, word]) => word)]);
+      const transitions = ["first", "next", "then", "after", "before", "finally", "however", "therefore", "because", "meanwhile", "suddenly", "in conclusion", "as a result"];
+      const formalWords = ["incident", "occurred", "reported", "witnessed", "concluded", "recommend", "persons involved", "action taken"];
+      const sensoryHits = sensoryWords.filter(word => lower.includes(word.toLowerCase())).length;
+      const figurativeHits = (lower.match(/\blike a\b|\blike an\b|\bas [a-z]+ as\b|\b[a-z]+ed like\b|\b[a-z]+ing like\b/g) || []).length;
+      const transitionHits = transitions.filter(word => lower.includes(word)).length;
+      const formalHits = formalWords.filter(word => lower.includes(word)).length;
+      const completeSentenceRatio = sentences.length ? sentences.filter(sentence => sentence.trim().split(/\s+/).length >= 4).length / sentences.length : 0;
+      const longSentences = sentences.filter(sentence => sentence.trim().split(/\s+/).length > 35).length;
+      const startsLowercase = sentences.filter(sentence => /^[a-z]/.test(sentence.trim())).length;
+      const missingEndPunctuation = text && !/[.!?"]$/.test(text);
+      return {
+        text, lower, words, wordCount: words.length, sentences, sentenceCount: sentences.length, paragraphs,
+        paragraphCount: paragraphs.length, sensoryHits, figurativeHits, transitionHits, formalHits,
+        hasDialogue: /["“”]/.test(text),
+        hasDate: /\b\d{1,2}[/-]\d{1,2}|\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|may|june|july|august|september|october|november|december)\b/i.test(text),
+        hasTime: /\b\d{1,2}:\d{2}\b|\b(a\.m\.|p\.m\.|morning|afternoon|evening|lunchtime)\b/i.test(text),
+        hasPlace: /\b(school|yard|classroom|home|street|market|field|hall|office|beach|park|room|building)\b/i.test(text),
+        completeSentenceRatio, longSentences, startsLowercase, missingEndPunctuation
+      };
+    }
+
+    function markDraft() {
+      const profile = textProfile();
+      if (!profile.wordCount) {
+        return {
+          content: { score: 0, note: "No draft text found yet." },
+          language: { score: 0, note: "No language features can be checked until a draft is written." },
+          organisation: { score: 0, note: "No paragraphing or sequencing can be checked yet." },
+          grammar: { score: 0, note: "No sentences can be checked yet." }
+        };
+      }
+
+      const lengthScore = profile.wordCount >= 250 ? 2 : profile.wordCount >= 150 ? 1.5 : profile.wordCount >= 80 ? 1 : profile.wordCount >= 35 ? 0.5 : 0;
+      let content = lengthScore;
+      let language = Math.min(2, profile.sensoryHits * 0.45) + Math.min(1.5, profile.figurativeHits * 0.75);
+      let organisation = Math.min(2, profile.paragraphCount * 0.55) + Math.min(2, profile.transitionHits * 0.45);
+      let grammar = profile.completeSentenceRatio * 3.2 + (profile.sentenceCount >= 4 ? 0.8 : 0) - Math.min(1.4, profile.longSentences * 0.45) - Math.min(1.2, profile.startsLowercase * 0.4) - (profile.missingEndPunctuation ? 0.5 : 0);
+      const notes = {
+        content: [],
+        language: [],
+        organisation: [],
+        grammar: []
+      };
+
+      if (els.essayType.value === "narrative") {
+        const plotHits = ["problem", "suddenly", "realised", "felt", "finally", "from that day", "ended"].filter(word => profile.lower.includes(word)).length;
+        content += (profile.hasPlace ? 0.7 : 0) + (profile.hasDialogue ? 0.7 : 0) + Math.min(1.6, plotHits * 0.4);
+        notes.content.push(profile.hasPlace ? "A setting is suggested." : "Add a clear time and place.");
+        notes.content.push(profile.hasDialogue ? "Dialogue is present." : "Add dialogue or action to develop characters.");
+        notes.content.push(plotHits >= 3 ? "The plot shows movement." : "Make the problem, climax, and ending clearer.");
+      } else if (els.essayType.value === "report") {
+        content += (profile.hasDate ? 0.8 : 0) + (profile.hasTime ? 0.8 : 0) + (profile.hasPlace ? 0.8 : 0) + Math.min(1.2, profile.formalHits * 0.3);
+        language += Math.min(1.5, profile.formalHits * 0.35) - Math.min(1, profile.figurativeHits * 0.4);
+        notes.content.push(profile.hasDate && profile.hasTime && profile.hasPlace ? "Date, time, and place are included." : "Include date, time, and place early.");
+        notes.language.push(profile.formalHits ? "Some formal report language is present." : "Use formal report words such as occurred, reported, witnessed, or action taken.");
+        notes.language.push(profile.figurativeHits ? "Reports should avoid figurative language unless it is part of quoted speech." : "Tone appears factual.");
+      } else if (els.essayType.value === "persuasive") {
+        const persuasionHits = ["should", "must", "believe", "because", "reason", "therefore", "for example", "benefit"].filter(word => profile.lower.includes(word)).length;
+        content += Math.min(3, persuasionHits * 0.55);
+        language += Math.min(1.5, persuasionHits * 0.25);
+        notes.content.push(persuasionHits >= 3 ? "The draft shows a position with reasons." : "State your opinion and add reasons with examples.");
+      } else if (els.essayType.value === "expository") {
+        const explainHits = ["explain", "because", "first", "next", "for example", "means", "therefore", "in summary"].filter(word => profile.lower.includes(word)).length;
+        content += Math.min(3, explainHits * 0.5);
+        notes.content.push(explainHits >= 3 ? "The draft includes explanatory signals." : "Add facts, steps, examples, or reasons.");
+      } else {
+        content += Math.min(2.5, profile.sensoryHits * 0.35) + (profile.hasPlace ? 0.5 : 0);
+        notes.content.push(profile.sensoryHits >= 4 ? "Details help develop the description." : "Add more sight, sound, smell, touch, or taste details.");
+      }
+
+      notes.language.push(profile.sensoryHits ? `${profile.sensoryHits} sensory word match(es) found.` : "Add sensory details from the word bank.");
+      notes.language.push(profile.figurativeHits ? `${profile.figurativeHits} figurative language pattern(s) found.` : "Add a simile or metaphor where it suits the form.");
+      notes.organisation.push(profile.paragraphCount >= 3 ? "Paragraphing is developing." : "Use separate paragraphs for separate ideas or events.");
+      notes.organisation.push(profile.transitionHits ? `${profile.transitionHits} transition signal(s) found.` : "Add transitions to guide the reader.");
+      notes.grammar.push(profile.completeSentenceRatio > 0.8 ? "Most sentences look complete." : "Check for fragments and very short incomplete sentences.");
+      notes.grammar.push(profile.longSentences ? "Some long sentences may need splitting." : "Sentence length looks controlled.");
+      notes.grammar.push(profile.startsLowercase || profile.missingEndPunctuation ? "Check capital letters and end punctuation." : "Capitalisation and end punctuation look mostly controlled.");
+
+      return {
+        content: { score: clampScore(content), note: notes.content.join(" ") },
+        language: { score: clampScore(language), note: notes.language.join(" ") },
+        organisation: { score: clampScore(organisation), note: notes.organisation.join(" ") },
+        grammar: { score: clampScore(grammar), note: notes.grammar.join(" ") }
+      };
+    }
+
+    function toast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      window.setTimeout(() => els.toast.classList.remove("show"), 1800);
+    }
+
+    function readSavedState() {
+      try {
+        return JSON.parse(localStorage.getItem(stateKey) || "{}");
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function writeSavedState(nextState) {
+      try {
+        localStorage.setItem(stateKey, JSON.stringify(nextState));
+      } catch (error) {
+        els.saveStatus.textContent = "Ready";
+      }
+    }
+
+    function save() {
+      const outline = [...document.querySelectorAll(".outline-item input")].map(input => input.value);
+      const scores = Object.fromEntries([...document.querySelectorAll(".rubric-score")].map(select => [select.dataset.area, select.value]));
+      const checks = [...document.querySelectorAll(".rubric-check")].map(check => check.checked);
+      writeSavedState({
+        type: els.essayType.value,
+        title: els.essayTitle.value,
+        draft: els.draft.value,
+        outline,
+        scores,
+        checks
+      });
+      els.saveStatus.textContent = "Saved";
+      window.setTimeout(() => (els.saveStatus.textContent = "Ready"), 900);
+    }
+
+    function load() {
+      const saved = readSavedState();
+      els.essayType.value = saved.type || "narrative";
+      els.essayTitle.value = saved.title || "";
+      els.draft.value = saved.draft || "";
+      renderAll(saved.outline, saved.scores, saved.checks);
+      updateStats();
+      if (els.draft.value.trim()) {
+        applyAutomaticMarks();
+      }
+    }
+
+    function insertText(text) {
+      const start = els.draft.selectionStart;
+      const end = els.draft.selectionEnd;
+      const before = els.draft.value.slice(0, start);
+      const after = els.draft.value.slice(end);
+      const spacer = before && !before.endsWith(" ") && !before.endsWith("\n") ? " " : "";
+      const nextText = `${spacer}${text}`;
+      els.draft.value = before + nextText + after;
+      els.draft.focus();
+      const cursor = before.length + nextText.length;
+      els.draft.setSelectionRange(cursor, cursor);
+      updateStats();
+      save();
+    }
+
+    function updateStats() {
+      const text = els.draft.value.trim();
+      const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+      const sentences = text ? text.split(/[.!?]+/).filter(part => part.trim().length > 0).length : 0;
+      els.wordCount.textContent = words;
+      els.sentenceCount.textContent = sentences;
+    }
+
+    function renderTitles() {
+      els.titleList.innerHTML = "";
+      sample(currentData().titles, 4).forEach(title => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "prompt-card";
+        button.innerHTML = `<strong>${title}</strong><span>Use as title or heading</span>`;
+        button.addEventListener("click", () => {
+          els.essayTitle.value = title;
+          renderWords();
+          renderPhraseCategories();
+          renderPhrases();
+          save();
+          toast("Title added");
+        });
+        els.titleList.appendChild(button);
+      });
+    }
+
+    function renderPrompts() {
+      els.promptList.innerHTML = "";
+      sample(currentData().prompts, 4).forEach(([label, prompt]) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "prompt-card";
+        button.innerHTML = `<strong>${label}</strong><span>${prompt}</span>`;
+        button.addEventListener("click", () => insertText(`Prompt: ${prompt}\n\n`));
+        els.promptList.appendChild(button);
+      });
+    }
+
+    function renderWords() {
+      const category = els.wordCategory.value;
+      const query = els.wordSearch.value.trim().toLowerCase();
+      els.wordGrid.innerHTML = "";
+      const context = document.createElement("div");
+      context.className = "bank-context";
+      context.textContent = bankContextText();
+      els.wordGrid.appendChild(context);
+      const titleWords = titleTheme().words.map(word => ["sensory", word]);
+      const allWords = [...titleWords, ...wordBank];
+      const seen = new Set();
+      allWords
+        .filter(([, word]) => {
+          const key = word.toLowerCase();
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        })
+        .filter(([kind]) => category === "all" || kind === category)
+        .filter(([, word]) => !query || word.toLowerCase().includes(query))
+        .forEach(([kind, word]) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "chip";
+          button.dataset.kind = kind;
+          button.textContent = word;
+          button.addEventListener("click", () => insertText(word));
+          els.wordGrid.appendChild(button);
+        });
+    }
+
+    function renderPhraseCategories() {
+      const previous = els.phraseCategory.value;
+      els.phraseCategory.innerHTML = "";
+      const titleOption = document.createElement("option");
+      titleOption.value = "Figurative language";
+      titleOption.textContent = "Figurative language";
+      els.phraseCategory.appendChild(titleOption);
+      Object.keys(phraseBank[els.essayType.value]).forEach(category => {
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = category;
+        els.phraseCategory.appendChild(option);
+      });
+      if ([...els.phraseCategory.options].some(option => option.value === previous)) {
+        els.phraseCategory.value = previous;
+      }
+    }
+
+    function renderPhrases() {
+      const set = els.phraseCategory.value === "Figurative language"
+        ? titleTheme().phrases
+        : phraseBank[els.essayType.value][els.phraseCategory.value] || [];
+      els.phraseList.innerHTML = "";
+      const context = document.createElement("div");
+      context.className = "bank-context";
+      context.textContent = bankContextText();
+      els.phraseList.appendChild(context);
+      set.forEach(phrase => {
+        const row = document.createElement("div");
+        row.className = "phrase";
+        row.innerHTML = `<p>${phrase}</p><button class="mini" type="button" title="Insert phrase">+</button>`;
+        row.querySelector("button").addEventListener("click", () => insertText(phrase));
+        els.phraseList.appendChild(row);
+      });
+    }
+
+    function renderOutline(values = []) {
+      els.planTitle.textContent = `${currentData().label} Plan`;
+      els.outlineGrid.innerHTML = "";
+      currentData().plan.forEach(([label, placeholder], index) => {
+        const item = document.createElement("div");
+        item.className = "outline-item";
+        item.innerHTML = `
+          <div class="number">${index + 1}</div>
+          <div>
+            <label>${label}</label>
+            <input value="${values[index] || ""}" placeholder="${placeholder}" aria-label="${label}">
+          </div>
+        `;
+        item.querySelector("input").addEventListener("input", save);
+        els.outlineGrid.appendChild(item);
+      });
+    }
+
+    function renderRubric(scores = {}, checks = []) {
+      els.rubricGuide.textContent = currentData().rubricGuide;
+      els.rubricList.innerHTML = "";
+      const areas = [
+        ["content", "Content", "Are the main ideas and required details fully developed?"],
+        ["language", "Language Use", "Is the language suitable, clear, and effective for this form?"],
+        ["organisation", "Organisation", "Is the writing sequenced, paragraphed, and easy to follow?"],
+        ["grammar", "Grammar and Mechanics", "Are spelling, punctuation, capitalisation, sentence structure, tense, and agreement controlled?"]
+      ];
+      let checkIndex = 0;
+      areas.forEach(([key, label, help]) => {
+        const card = document.createElement("div");
+        card.className = "rubric-card";
+        const checklist = currentData().checklist[key].map(item => {
+          const checked = checks[checkIndex++] ? "checked" : "";
+          return `<li><label><input class="rubric-check" type="checkbox" ${checked}>${item}</label></li>`;
+        }).join("");
+        card.innerHTML = `
+          <header>
+            <div>
+              <h2>${label}</h2>
+              <small>Minimum: 0 mark. Maximum: 5 marks. ${help}</small>
+            </div>
+            <select class="rubric-score" data-area="${key}" aria-label="${label} score">
+              ${achievement.map((level, mark) => `<option value="${mark}" ${String(scores[key] || "0") === String(mark) ? "selected" : ""}>${mark} - ${level}</option>`).join("")}
+            </select>
+          </header>
+          <p class="score-explanation" data-explanation="${key}"></p>
+          <p class="auto-notes" data-auto-note="${key}">The automatic checker will add a reason here after marking the draft.</p>
+          <ul class="checklist">${checklist}</ul>
+        `;
+        card.querySelector(".rubric-score").addEventListener("change", () => { updateRubricTotal(); save(); });
+        card.querySelectorAll(".rubric-check").forEach(check => check.addEventListener("change", save));
+        els.rubricList.appendChild(card);
+      });
+      updateRubricTotal();
+    }
+
+    function updateRubricTotal() {
+      const total = [...document.querySelectorAll(".rubric-score")].reduce((sum, select) => {
+        const mark = Number(select.value);
+        const explanation = document.querySelector(`[data-explanation="${select.dataset.area}"]`);
+        if (explanation) {
+          explanation.textContent = `${achievement[mark]} (${mark}/5): ${scoreExplanations[select.dataset.area][mark]}`;
+        }
+        return sum + mark;
+      }, 0);
+      els.rubricTotal.textContent = total;
+      els.rubricTotalTop.textContent = `${total}/20`;
+      const average = Math.round(total / 4);
+      els.rubricLevel.textContent = achievement[average];
+    }
+
+    function applyAutomaticMarks(showToast = false) {
+      const marks = markDraft();
+      Object.entries(marks).forEach(([area, result]) => {
+        const select = document.querySelector(`.rubric-score[data-area="${area}"]`);
+        const note = document.querySelector(`[data-auto-note="${area}"]`);
+        if (select) select.value = String(result.score);
+        if (note) note.textContent = `Automatic check: ${result.note}`;
+      });
+      updateRubricTotal();
+      els.autoSummary.textContent = els.draft.value.trim()
+        ? `Automatic self-check updated from the current ${currentData().label.toLowerCase()} draft. Review the reasons and adjust any mark if needed.`
+        : "Write or paste a draft, then use Mark Draft for an estimated self-check.";
+      if (showToast) toast("Draft marked");
+    }
+
+    function outlineText() {
+      return [...document.querySelectorAll(".outline-item")].map((item, index) => {
+        const label = item.querySelector("label").textContent;
+        const value = item.querySelector("input").value || item.querySelector("input").placeholder;
+        return `${index + 1}. ${label}: ${value}`;
+      }).join("\n");
+    }
+
+    function rubricText() {
+      return [...document.querySelectorAll(".rubric-card")].map(card => {
+        const title = card.querySelector("h2").textContent;
+        const score = card.querySelector("select").value;
+        const explanation = card.querySelector(".score-explanation").textContent;
+        const checked = [...card.querySelectorAll("input[type='checkbox']")]
+          .filter(input => input.checked)
+          .map(input => `- ${input.parentElement.textContent.trim()}`)
+          .join("\n");
+        return `${title}: ${score}/5\n${explanation}${checked ? `\n${checked}` : ""}`;
+      }).join("\n\n");
+    }
+
+    function renderAll(outlineValues = [], scores = {}, checks = []) {
+      els.modeHelp.textContent = currentData().help;
+      renderTitles();
+      renderPrompts();
+      renderWords();
+      renderPhraseCategories();
+      renderPhrases();
+      renderOutline(outlineValues);
+      renderRubric(scores, checks);
+    }
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(item => item.classList.remove("active"));
+        document.querySelectorAll(".tab-panel").forEach(panel => panel.classList.add("hidden"));
+        tab.classList.add("active");
+        document.querySelector(`#${tab.dataset.tab}`).classList.remove("hidden");
+      });
+    });
+
+    els.essayType.addEventListener("change", () => {
+      renderAll();
+      save();
+      toast(`${currentData().label} selected`);
+    });
+    els.draft.addEventListener("input", () => {
+      updateStats();
+      if (els.liveAutoCheck.checked) applyAutomaticMarks();
+      save();
+    });
+    els.essayTitle.addEventListener("input", () => {
+      renderWords();
+      renderPhraseCategories();
+      renderPhrases();
+      save();
+    });
+    els.wordCategory.addEventListener("change", renderWords);
+    els.wordSearch.addEventListener("input", renderWords);
+    els.phraseCategory.addEventListener("change", renderPhrases);
+
+    document.querySelector("#shuffleTitles").addEventListener("click", renderTitles);
+    document.querySelector("#shufflePrompts").addEventListener("click", renderPrompts);
+    document.querySelector("#suggestTitle").addEventListener("click", () => {
+      els.essayTitle.value = sample(currentData().titles, 1)[0];
+      renderWords();
+      renderPhraseCategories();
+      renderPhrases();
+      save();
+      toast("Title suggested");
+    });
+    document.querySelector("#newPrompt").addEventListener("click", () => {
+      renderPrompts();
+      document.querySelector('[data-tab="prompts"]').click();
+      toast("Prompts refreshed");
+    });
+    document.querySelector("#addPhraseSet").addEventListener("click", () => {
+      const set = els.phraseCategory.value === "Figurative language"
+        ? titleTheme().phrases
+        : phraseBank[els.essayType.value][els.phraseCategory.value] || [];
+      insertText(set.join(" "));
+    });
+    document.querySelector("#insertOutline").addEventListener("click", () => insertText(`Writing plan:\n${outlineText()}\n\n`));
+    document.querySelector("#openRubric").addEventListener("click", () => {
+      document.querySelector('[data-tab="rubric"]').click();
+      document.querySelector("#rubric").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    document.querySelector("#markFromDraft").addEventListener("click", () => {
+      applyAutomaticMarks(true);
+      document.querySelector('[data-tab="rubric"]').click();
+      document.querySelector("#rubric").scrollIntoView({ behavior: "smooth", block: "start" });
+      save();
+    });
+    els.autoMark.addEventListener("click", () => {
+      applyAutomaticMarks(true);
+      save();
+    });
+    els.liveAutoCheck.addEventListener("change", () => {
+      if (els.liveAutoCheck.checked) applyAutomaticMarks(true);
+      save();
+    });
+    document.querySelector("#insertRubric").addEventListener("click", () => {
+      applyAutomaticMarks();
+      insertText(`Self-check rubric (${els.rubricTotal.textContent}/20):\n${rubricText()}\n\n`);
+    });
+    document.querySelector("#resetOutline").addEventListener("click", () => { renderOutline(); save(); toast("Plan reset"); });
+    document.querySelector("#clearDraft").addEventListener("click", () => {
+      if (!els.draft.value || window.confirm("Clear the current draft?")) {
+        els.draft.value = "";
+        updateStats();
+        save();
+      }
+    });
+    document.querySelector("#copyDraft").addEventListener("click", async () => {
+      const text = `${els.essayTitle.value ? `${els.essayTitle.value}\n\n` : ""}${els.draft.value}`;
+      await navigator.clipboard.writeText(text);
+      toast("Draft copied");
+    });
+
+    load();
+  </script>
+</body>
+</html>
