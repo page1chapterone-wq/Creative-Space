@@ -1,22 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Essay Writing Studio</title>
   <style>
     :root {
-      color-scheme: light;
       --ink: #18202a;
       --muted: #657080;
       --line: #d9dfdf;
       --paper: #fbfaf6;
-      --sage: #47746a;
-      --sage-strong: #24564d;
-      --coral: #c8664b;
+      --sage: #24564d;
+      --soft-sage: #eef6f3;
       --gold: #d69a2d;
-      --sky: #e7f1f3;
+      --soft-gold: #fff8e8;
+      --coral: #c8664b;
+      --soft-coral: #fff3ee;
       --violet: #716095;
+      --soft-violet: #f5f2ff;
       --shadow: 0 18px 50px rgba(23, 31, 38, 0.14);
     }
 
@@ -25,8 +26,8 @@
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:
         linear-gradient(90deg, rgba(255,255,255,0.45) 1px, transparent 1px) 0 0 / 34px 34px,
         linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px) 0 0 / 34px 34px,
@@ -36,23 +37,21 @@
     button, textarea, input, select { font: inherit; }
     button { border: 0; cursor: pointer; }
 
-    .app { min-height: 100vh; display: grid; grid-template-rows: auto 1fr; }
-
     header {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       gap: 18px;
       padding: 18px clamp(16px, 3vw, 34px);
       border-bottom: 1px solid rgba(88, 100, 102, 0.22);
-      background: rgba(251, 250, 246, 0.82);
+      background: rgba(251, 250, 246, 0.84);
       backdrop-filter: blur(16px);
       position: sticky;
       top: 0;
       z-index: 5;
     }
 
-    .brand { display: flex; align-items: center; gap: 12px; min-width: 240px; }
+    .brand { display: flex; gap: 12px; align-items: center; }
 
     .mark {
       width: 42px;
@@ -60,129 +59,214 @@
       border-radius: 8px;
       background:
         radial-gradient(circle at 30% 28%, #fff7df 0 18%, transparent 19%),
-        linear-gradient(140deg, var(--sage), #2a4d64 58%, var(--coral));
+        linear-gradient(140deg, #47746a, #2a4d64 58%, var(--coral));
       box-shadow: 0 10px 24px rgba(39, 74, 83, 0.25);
-      position: relative;
-      flex: 0 0 auto;
     }
 
-    .mark::after {
-      content: "";
-      width: 18px;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 99px;
-      position: absolute;
-      right: 8px;
-      bottom: 10px;
-      transform: rotate(-23deg);
-    }
-
-    h1 { font-size: clamp(1.15rem, 2vw, 1.7rem); line-height: 1; margin: 0; letter-spacing: 0; }
-    h2, h3 { margin: 0; letter-spacing: 0; }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: clamp(1.15rem, 2vw, 1.7rem); line-height: 1; }
     h2 { font-size: 1rem; }
-    h3 { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-    p { margin: 0; }
+    h3 { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
 
-    .subtitle { color: var(--muted); font-size: 0.9rem; margin: 4px 0 0; }
-
-    .top-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+    .top-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
 
     .metric {
       min-width: 86px;
       padding: 8px 10px;
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: rgba(255, 255, 255, 0.74);
+      background: rgba(255,255,255,0.76);
       text-align: center;
     }
 
     .metric strong { display: block; font-size: 1rem; }
-    .metric span { display: block; font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .metric span { color: var(--muted); display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; }
 
     .ghost, .solid {
       min-height: 40px;
-      border-radius: 8px;
-      padding: 0 13px;
       display: inline-flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       gap: 8px;
+      padding: 0 13px;
+      border-radius: 8px;
       white-space: nowrap;
-      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
     }
 
-    .ghost { color: var(--sage-strong); background: rgba(255, 255, 255, 0.76); border: 1px solid var(--line); }
-    .solid { color: #fff; background: var(--sage-strong); box-shadow: 0 10px 24px rgba(36, 86, 77, 0.24); }
-    .ghost:hover, .solid:hover, .chip:hover, .prompt-card:hover { transform: translateY(-1px); }
+    .ghost { color: var(--sage); background: rgba(255,255,255,0.78); border: 1px solid var(--line); }
+    .solid { color: #fff; background: var(--sage); box-shadow: 0 10px 24px rgba(36, 86, 77, 0.24); }
 
     main {
       display: grid;
       grid-template-columns: minmax(330px, 1.1fr) minmax(320px, 500px);
       gap: clamp(14px, 2vw, 24px);
       padding: clamp(16px, 3vw, 34px);
-      align-items: stretch;
     }
 
-    .writer {
-      min-height: calc(100vh - 126px);
-      display: grid;
-      grid-template-rows: auto auto 1fr auto;
-      background: rgba(255, 255, 255, 0.72);
+    .writer, .panel {
+      background: rgba(255,255,255,0.8);
       border: 1px solid rgba(109, 122, 124, 0.24);
       border-radius: 8px;
       box-shadow: var(--shadow);
       overflow: hidden;
     }
 
-    .mode-row, .title-row {
+    .writer { display: grid; grid-template-rows: auto auto 1fr auto auto; min-height: calc(100vh - 126px); }
+
+    .draft-stage {
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: minmax(172px, 210px) 1fr;
+      min-height: 460px;
+      background: var(--paper);
+    }
+
+    .process-panel {
+      padding: 16px;
+      border-right: 1px solid var(--line);
+      background: rgba(255,255,255,0.72);
+    }
+
+    .process-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .process-step {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 9px;
+      align-items: start;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      text-align: left;
+    }
+
+    .process-step.active {
+      border-color: rgba(71,116,106,0.65);
+      box-shadow: inset 0 0 0 2px rgba(71,116,106,0.12);
+      background: var(--soft-sage);
+    }
+
+    .process-step.complete .process-icon {
+      background: var(--sage);
+      color: #fff;
+    }
+
+    .process-step strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 0.92rem;
+    }
+
+    .process-step span {
+      display: block;
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: 0.82rem;
+    }
+
+    .process-icon {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      color: var(--sage);
+      background: var(--soft-sage);
+      font-weight: 800;
+      font-size: 0.82rem;
+    }
+
+    .process-workspace {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .process-actions {
+      display: grid;
+      gap: 8px;
+    }
+
+    .process-history {
+      display: grid;
+      gap: 8px;
+      max-height: 260px;
+      overflow: auto;
+    }
+
+    .process-history-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 10px;
+    }
+
+    .process-history-card strong,
+    .process-history-card span {
+      display: block;
+    }
+
+    .process-history-card span {
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: 0.8rem;
+      margin-top: 4px;
+    }
+
+    .process-history-actions {
+      display: flex;
+      gap: 7px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mode-row, .title-row, .writing-footer {
+      display: grid;
       gap: 12px;
       padding: 14px 16px;
       border-bottom: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.74);
+      background: rgba(255,255,255,0.76);
     }
 
     .mode-row { grid-template-columns: 220px 1fr; align-items: center; }
+    .title-row { grid-template-columns: 1fr auto; }
+    .writing-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); border-bottom: 0; flex-wrap: wrap; }
+    .draft-tools { display: flex; flex-wrap: wrap; gap: 8px; }
 
-    .mode-help {
-      color: var(--muted);
-      line-height: 1.4;
-      font-size: 0.94rem;
-    }
-
-    .title-row input {
-      width: 100%;
-      border: 0;
-      background: transparent;
-      color: var(--ink);
-      font-size: clamp(1.35rem, 3vw, 2.15rem);
-      font-weight: 760;
-      line-height: 1.15;
-      outline: none;
-      min-width: 0;
-    }
-
-    .title-row input::placeholder, textarea::placeholder { color: #8b948f; }
-
-    select, .search, .rubric-note {
+    select, input {
       height: 40px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #fff;
       color: var(--ink);
       padding: 0 10px;
-      outline: none;
       min-width: 0;
     }
 
+    .title-row input {
+      height: auto;
+      border: 0;
+      background: transparent;
+      font-size: clamp(1.35rem, 3vw, 2.1rem);
+      font-weight: 760;
+      outline: 0;
+    }
+
+    .mode-help, .muted { color: var(--muted); line-height: 1.4; }
+
     textarea {
       width: 100%;
-      min-height: 520px;
-      resize: none;
+      min-height: 100%;
+      resize: vertical;
       border: 0;
-      outline: none;
+      outline: 0;
       padding: clamp(18px, 3vw, 34px);
       background:
         linear-gradient(rgba(24, 32, 42, 0.055) 1px, transparent 1px) 0 32px / 100% 32px,
@@ -193,467 +277,467 @@
       line-height: 32px;
     }
 
-    .writing-footer {
+    .review-box {
+      border-top: 1px solid var(--line);
+      background: #fff;
+      padding: 16px;
+    }
+
+    .review-head {
       display: flex;
-      align-items: center;
       justify-content: space-between;
       gap: 10px;
-      padding: 13px 16px;
-      border-top: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.76);
-      color: var(--muted);
-      font-size: 0.92rem;
-      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 12px;
     }
 
-    .draft-tools { display: flex; gap: 8px; flex-wrap: wrap; }
-
-    .side {
-      min-height: calc(100vh - 126px);
-      display: grid;
-      grid-template-rows: auto 1fr;
-      gap: 12px;
-    }
-
-    .tabs {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.58);
-      padding: 6px;
-      border: 1px solid rgba(109, 122, 124, 0.24);
-      border-radius: 8px;
-    }
-
-    .tab { min-height: 38px; border-radius: 6px; background: transparent; color: var(--muted); font-weight: 700; }
-    .tab.active { color: var(--ink); background: #fff; box-shadow: 0 8px 20px rgba(23, 31, 38, 0.11); }
-
-    .panel {
+    .highlighted-draft {
+      min-height: 92px;
+      max-height: 260px;
       overflow: auto;
-      background: rgba(255, 255, 255, 0.8);
-      border: 1px solid rgba(109, 122, 124, 0.24);
+      padding: 14px;
       border-radius: 8px;
-      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      background: var(--paper);
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.7;
+      white-space: pre-wrap;
     }
 
+    mark {
+      border-radius: 4px;
+      padding: 1px 3px;
+      color: inherit;
+    }
+
+    mark.grammar { background: #ffd9d1; border-bottom: 2px solid var(--coral); }
+    mark.organisation { background: #fff0bd; border-bottom: 2px solid var(--gold); }
+    mark.language { background: #e6ddff; border-bottom: 2px solid var(--violet); }
+    mark.content { background: #dff2ed; border-bottom: 2px solid var(--sage); }
+
+    .side { display: grid; grid-template-rows: auto 1fr; gap: 12px; }
+    .tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 6px; border: 1px solid rgba(109,122,124,0.24); border-radius: 8px; background: rgba(255,255,255,0.6); }
+    .tab { min-height: 38px; border-radius: 6px; color: var(--muted); background: transparent; font-weight: 700; }
+    .tab.active { background: #fff; color: var(--ink); box-shadow: 0 8px 20px rgba(23,31,38,0.11); }
+
+    .panel { overflow: auto; }
     .panel-section { padding: 16px; border-bottom: 1px solid var(--line); }
     .panel-section:last-child { border-bottom: 0; }
+    .panel-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 12px; }
 
-    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-
-    .select-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-
-    .chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-
-    .chip {
-      min-height: 34px;
-      border-radius: 8px;
-      padding: 7px 10px;
-      background: #fff;
-      color: var(--ink);
-      border: 1px solid var(--line);
-      box-shadow: 0 6px 12px rgba(23, 31, 38, 0.05);
-      transition: transform 160ms ease, border-color 160ms ease;
-    }
-
-    .chip[data-kind="sensory"] { border-color: rgba(71, 116, 106, 0.36); background: #f3faf7; }
-    .chip[data-kind="emotion"] { border-color: rgba(198, 102, 75, 0.34); background: #fff6f2; }
-    .chip[data-kind="action"] { border-color: rgba(113, 96, 149, 0.34); background: #f7f4ff; }
-    .chip[data-kind="formal"] { border-color: rgba(214, 154, 45, 0.42); background: #fffaf0; }
-
-    .prompt-card {
+    .prompt-card, .rubric-card, .issue-card, .phrase {
       width: 100%;
       text-align: left;
-      border-radius: 8px;
       border: 1px solid var(--line);
-      background: #fff;
-      padding: 13px;
-      margin-bottom: 10px;
-      color: var(--ink);
-      transition: transform 160ms ease, border-color 160ms ease;
-    }
-
-    .prompt-card strong { display: block; margin-bottom: 6px; font-size: 0.95rem; }
-    .prompt-card span { display: block; color: var(--muted); line-height: 1.4; }
-
-    .phrase-list, .outline-grid, .rubric-list { display: grid; gap: 10px; }
-
-    .bank-context {
-      flex: 1 0 100%;
-      margin-bottom: 12px;
-      padding: 11px 12px;
       border-radius: 8px;
-      border: 1px solid rgba(71, 116, 106, 0.24);
-      background: #f3faf7;
-      color: var(--sage-strong);
-      line-height: 1.35;
-      font-size: 0.92rem;
+      background: #fff;
+      padding: 12px;
+      margin-bottom: 10px;
     }
 
-    .phrase, .outline-item, .rubric-card {
+    .prompt-card strong, .issue-card strong { display: block; margin-bottom: 6px; }
+    .prompt-card span, .issue-card span { display: block; color: var(--muted); line-height: 1.4; }
+    .draft-save-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-bottom: 12px; }
+    .draft-card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .example-workshop { display: grid; gap: 12px; }
+    .example-stage-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px; }
+    .example-stage-button { min-height: 36px; border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--muted); font-weight: 750; }
+    .example-stage-button.active { background: var(--soft-sage); border-color: rgba(71,116,106,0.55); color: var(--sage); }
+    .example-editor {
+      width: 100%;
+      height: 320px;
+      min-height: 240px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1rem;
+      line-height: 1.65;
+      resize: vertical;
+    }
+    .example-workshop-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .select-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { min-height: 34px; border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 7px 10px; }
+    .chip[data-kind="sensory"] { background: var(--soft-sage); }
+    .chip[data-kind="formal"] { background: var(--soft-gold); }
+    .chip[data-kind="language"] { background: var(--soft-violet); }
+
+    .phrase { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; }
+    .mini { width: 34px; height: 34px; border-radius: 7px; background: #e7f1f3; color: var(--sage); font-weight: 800; }
+
+    .outline-grid, .rubric-list, .issue-list { display: grid; gap: 10px; }
+    .outline-item { display: grid; grid-template-columns: 34px 1fr; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+    .number { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 7px; background: var(--soft-sage); color: var(--sage); font-weight: 800; }
+    .outline-item label { display: block; color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .outline-item input { width: 100%; border: 0; outline: 0; background: transparent; }
+
+    .rubric-summary { display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: center; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fff; margin-bottom: 12px; }
+    .score-ring { min-height: 88px; display: grid; place-items: center; border-radius: 8px; background: linear-gradient(145deg, var(--soft-sage), var(--soft-gold)); text-align: center; }
+    .score-ring strong { display: block; font-size: 1.9rem; line-height: 1; }
+    .score-ring span { color: var(--muted); font-size: 0.8rem; }
+    .level-badge { display: inline-flex; align-items: center; min-height: 28px; padding: 4px 9px; border-radius: 8px; background: var(--soft-sage); color: var(--sage); font-weight: 800; font-size: 0.82rem; }
+    .rubric-card header { display: grid; grid-template-columns: 1fr 142px; gap: 10px; align-items: center; margin-bottom: 10px; }
+    .rubric-card small { color: var(--muted); line-height: 1.4; }
+    .rubric-card select { width: 142px; }
+    .score-explanation { padding: 10px 11px; border-radius: 8px; background: var(--soft-gold); border: 1px solid rgba(214,154,45,0.28); color: #5f4521; line-height: 1.4; font-size: 0.92rem; }
+    .auto-note { margin-top: 8px; color: var(--muted); line-height: 1.4; font-size: 0.92rem; }
+    .checklist { display: grid; gap: 7px; padding: 0; margin: 10px 0 0; list-style: none; }
+    .checklist label { display: grid; grid-template-columns: 20px 1fr; gap: 8px; line-height: 1.35; }
+    .rubric-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 12px; }
+    .switch-label { min-height: 40px; display: inline-flex; align-items: center; gap: 8px; padding: 0 11px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+    .bank-context { flex: 1 0 100%; margin-bottom: 12px; padding: 11px 12px; border-radius: 8px; border: 1px solid rgba(71,116,106,0.24); background: var(--soft-sage); color: var(--sage); line-height: 1.35; font-size: 0.92rem; }
+
+    .issue-card[data-area="grammar"] { border-left: 5px solid var(--coral); }
+    .issue-card[data-area="organisation"] { border-left: 5px solid var(--gold); }
+    .issue-card[data-area="language"] { border-left: 5px solid var(--violet); }
+    .issue-card[data-area="content"] { border-left: 5px solid var(--sage); }
+
+    .infographic-grid { display: grid; gap: 12px; }
+    .infographic-card {
+      display: grid;
+      gap: 10px;
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 12px;
+    }
+    .infographic-card img {
+      width: 100%;
+      max-height: 360px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+    }
+    .infographic-card strong { display: block; }
+    .infographic-card span { color: var(--muted); line-height: 1.4; }
+    .image-viewer {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: rgba(10, 18, 24, 0.72);
+    }
+    .image-viewer.open { display: grid; }
+    .image-viewer-inner {
+      width: min(980px, 96vw);
+      max-height: 94vh;
       display: grid;
       gap: 10px;
       padding: 12px;
-      border: 1px solid var(--line);
       border-radius: 8px;
       background: #fff;
+      box-shadow: var(--shadow);
     }
-
-    .phrase { grid-template-columns: 1fr auto; align-items: center; }
-    .phrase p { line-height: 1.35; }
-
-    .mini {
-      width: 34px;
-      height: 34px;
-      border-radius: 7px;
-      color: var(--sage-strong);
-      background: var(--sky);
-      font-weight: 800;
-    }
-
-    .outline-item { grid-template-columns: 36px 1fr; align-items: start; }
-
-    .number {
-      width: 30px;
-      height: 30px;
-      display: grid;
-      place-items: center;
-      border-radius: 7px;
-      background: #eef6f3;
-      color: var(--sage-strong);
-      font-weight: 800;
-    }
-
-    .outline-item label { display: block; color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
-    .outline-item input { width: 100%; border: 0; outline: 0; color: var(--ink); background: transparent; min-height: 28px; }
-
-    .rubric-summary {
-      display: grid;
-      grid-template-columns: 120px 1fr;
-      gap: 12px;
-      align-items: center;
-      padding: 14px;
-      border-radius: 8px;
-      background: #fff;
-      border: 1px solid var(--line);
-      margin-bottom: 12px;
-    }
-
-    .score-ring {
-      min-height: 88px;
-      display: grid;
-      place-items: center;
-      border-radius: 8px;
-      background: linear-gradient(145deg, #eef6f3, #fff8e8);
-      border: 1px solid rgba(71, 116, 106, 0.22);
-      text-align: center;
-    }
-
-    .score-ring strong { display: block; font-size: 1.9rem; line-height: 1; }
-    .score-ring span { color: var(--muted); font-size: 0.8rem; }
-
-    .rubric-card header {
-      position: static;
-      padding: 0;
-      border: 0;
-      background: transparent;
-      backdrop-filter: none;
-      display: grid;
-      grid-template-columns: 1fr 142px;
-      align-items: center;
-    }
-
-    .rubric-card small { color: var(--muted); line-height: 1.45; }
-
-    .rubric-card select { width: 142px; }
-
-    .score-explanation {
-      padding: 10px 11px;
-      border-radius: 8px;
-      background: #fff8e8;
-      border: 1px solid rgba(214, 154, 45, 0.28);
-      color: #5f4521;
-      line-height: 1.4;
-      font-size: 0.92rem;
-    }
-
-    .checklist {
-      display: grid;
-      gap: 7px;
-      padding: 0;
-      margin: 0;
-      list-style: none;
-    }
-
-    .checklist label {
-      display: grid;
-      grid-template-columns: 20px 1fr;
-      gap: 8px;
-      color: var(--ink);
-      line-height: 1.35;
-    }
-
-    .level-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 28px;
-      padding: 4px 9px;
-      border-radius: 8px;
-      background: #eef6f3;
-      color: var(--sage-strong);
-      font-weight: 800;
-      font-size: 0.82rem;
-    }
-
-    .source-note {
-      color: var(--muted);
-      line-height: 1.45;
-      font-size: 0.9rem;
-    }
-
-    .rubric-controls {
+    .image-viewer-head {
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
+      justify-content: space-between;
       gap: 10px;
-      margin-top: 12px;
-    }
-
-    .switch-label {
-      min-height: 40px;
-      display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 0 11px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
-      color: var(--ink);
     }
-
-    .auto-notes {
-      color: var(--muted);
-      line-height: 1.4;
-      font-size: 0.92rem;
+    .image-viewer img {
+      width: 100%;
+      max-height: 82vh;
+      object-fit: contain;
+      border-radius: 8px;
+      background: var(--paper);
     }
 
     .hidden { display: none; }
-
-    .toast {
-      position: fixed;
-      right: 18px;
-      bottom: 18px;
-      background: #17222a;
-      color: #fff;
-      padding: 11px 14px;
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-      opacity: 0;
-      transform: translateY(8px);
-      pointer-events: none;
-      transition: opacity 180ms ease, transform 180ms ease;
-      z-index: 20;
-    }
-
+    .toast { position: fixed; right: 18px; bottom: 18px; padding: 11px 14px; border-radius: 8px; background: #17222a; color: #fff; box-shadow: var(--shadow); opacity: 0; transform: translateY(8px); pointer-events: none; transition: 180ms ease; }
     .toast.show { opacity: 1; transform: translateY(0); }
 
     @media (max-width: 1080px) {
       main { grid-template-columns: 1fr; }
-      .writer, .side { min-height: auto; }
-      textarea { min-height: 440px; }
+      .writer { min-height: auto; }
     }
 
     @media (max-width: 720px) {
-      header, .top-actions, .title-row, .writing-footer { align-items: stretch; }
-      header { flex-direction: column; }
+      header, .mode-row, .title-row, .draft-stage, .rubric-summary, .select-row, .rubric-card header { grid-template-columns: 1fr; }
+      header { align-items: stretch; flex-direction: column; }
       .top-actions, .draft-tools { width: 100%; }
       .metric, .ghost, .solid { flex: 1 1 auto; }
-      .title-row, .mode-row, .select-row, .rubric-summary { grid-template-columns: 1fr; }
       .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .example-stage-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .process-panel { border-right: 0; border-bottom: 1px solid var(--line); }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <header>
-      <div class="brand">
-        <div class="mark" aria-hidden="true"></div>
-        <div>
-          <h1>Essay Writing Studio</h1>
-          <p class="subtitle">Plan, draft, and self-check different writing forms.</p>
-        </div>
+  <header>
+    <div class="brand">
+      <div class="mark" aria-hidden="true"></div>
+      <div>
+        <h1>Essay Writing Studio</h1>
+        <p class="subtitle">Plan, draft, self-check, and get tutoring suggestions.</p>
       </div>
-      <div class="top-actions">
-        <div class="metric"><strong id="wordCount">0</strong><span>Words</span></div>
-        <div class="metric"><strong id="sentenceCount">0</strong><span>Sentences</span></div>
-        <div class="metric"><strong id="rubricTotalTop">0/20</strong><span>Rubric</span></div>
-        <button class="ghost" id="copyDraft" type="button">Copy Draft</button>
-        <button class="solid" id="newPrompt" type="button">New Prompt</button>
-      </div>
-    </header>
+    </div>
+    <div class="top-actions">
+      <div class="metric"><strong id="wordCount">0</strong><span id="wordCountLabel">Words</span></div>
+      <div class="metric"><strong id="sentenceCount">0</strong><span id="sentenceCountLabel">Sentences</span></div>
+      <div class="metric"><strong id="rubricTotalTop">0/20</strong><span>Rubric</span></div>
+      <button class="ghost" id="copyDraft" type="button">Copy Draft</button>
+      <button class="solid" id="newPrompt" type="button">New Prompt</button>
+    </div>
+  </header>
 
-    <main>
-      <section class="writer" aria-label="Essay draft">
-        <div class="mode-row">
-          <select id="essayType" aria-label="Essay type">
-            <option value="narrative">Narrative story</option>
-            <option value="report">Report</option>
-            <option value="descriptive">Descriptive essay</option>
-            <option value="persuasive">Persuasive essay</option>
-            <option value="expository">Expository essay</option>
-          </select>
-          <p class="mode-help" id="modeHelp"></p>
+  <main>
+    <section class="writer" aria-label="Essay draft">
+      <div class="mode-row">
+        <select id="essayType" aria-label="Essay type">
+          <option value="narrative">Narrative story</option>
+          <option value="report">Report</option>
+          <option value="formalLetter">Formal letter</option>
+          <option value="informalLetter">Informal letter</option>
+          <option value="descriptive">Descriptive essay</option>
+          <option value="persuasive">Persuasive essay</option>
+          <option value="expository">Expository essay</option>
+        </select>
+        <p class="mode-help" id="modeHelp"></p>
+      </div>
+      <div class="title-row">
+        <input id="essayTitle" lang="en-GB" aria-label="Essay title" placeholder="Choose a title or write your own" />
+        <button class="ghost" id="suggestTitle" type="button">Suggest Title</button>
+      </div>
+      <div class="draft-stage">
+        <aside class="process-panel" aria-label="Writing process">
+          <h2>Writing Process</h2>
+          <p class="muted">Move through each stage as you improve the draft.</p>
+          <div class="process-list">
+            <button class="process-step" type="button" id="processPlan" data-stage="plan">
+              <span class="process-icon">1</span>
+              <span><strong>Plan</strong><span>Choose ideas, structure, and details.</span></span>
+            </button>
+            <button class="process-step" type="button" id="processDraft" data-stage="draft">
+              <span class="process-icon">2</span>
+              <span><strong>Draft</strong><span>Write freely before correcting everything.</span></span>
+            </button>
+            <button class="process-step" type="button" id="processRevise" data-stage="revise">
+              <span class="process-icon">3</span>
+              <span><strong>Revise</strong><span>Improve content, language, and organisation.</span></span>
+            </button>
+            <button class="process-step" type="button" id="processEdit" data-stage="edit">
+              <span class="process-icon">4</span>
+              <span><strong>Edit</strong><span>Check grammar, punctuation, and spelling.</span></span>
+            </button>
+            <button class="process-step" type="button" id="processPublish" data-stage="publish">
+              <span class="process-icon">5</span>
+              <span><strong>Publish</strong><span>Copy or save the final version.</span></span>
+            </button>
+          </div>
+          <div class="process-workspace" aria-label="Writing process progress">
+            <span class="level-badge" id="stageStatus">Plan stage</span>
+            <div class="process-actions">
+              <button class="solid" id="saveStageSnapshot" type="button">Save Stage</button>
+              <button class="ghost" id="viewStageHistory" type="button">View Changes</button>
+            </div>
+            <div class="process-history" id="stageHistory"></div>
+          </div>
+        </aside>
+        <textarea id="draft" lang="en-GB" spellcheck="true" placeholder="Begin writing here. Use Mark Draft for rubric scores, highlighted issues, and tutoring recommendations."></textarea>
+      </div>
+      <div class="writing-footer">
+        <span id="saveStatus">Ready</span>
+        <div class="draft-tools">
+          <button class="ghost" id="insertOutline" type="button">Insert Plan</button>
+          <button class="solid" id="quickSaveDraft" type="button">Save Version</button>
+          <button class="solid" id="markFromDraft" type="button">Mark Draft</button>
+          <button class="ghost" id="openReview" type="button">Open Review</button>
+          <button class="ghost" id="insertRubric" type="button">Insert Self-Check</button>
+          <button class="ghost" id="clearDraft" type="button">Clear</button>
         </div>
-        <div class="title-row">
-          <input id="essayTitle" aria-label="Essay title" placeholder="Choose a title or write your own" />
-          <button class="ghost" id="suggestTitle" type="button">Suggest Title</button>
+      </div>
+      <div class="review-box" id="draftReview">
+        <div class="review-head">
+          <div>
+            <h2>Highlighted Review</h2>
+            <p class="muted">Likely issues are highlighted here while your original draft stays editable above.</p>
+          </div>
+          <span class="level-badge" id="issueCount">0 issues</span>
         </div>
-        <textarea id="draft" spellcheck="true" placeholder="Begin writing here. Use the side panel for prompts, words, phrases, planning, and self-checking."></textarea>
-        <div class="writing-footer">
-          <span id="saveStatus">Ready</span>
-          <div class="draft-tools">
-            <button class="ghost" id="insertOutline" type="button">Insert Plan</button>
-            <button class="solid" id="markFromDraft" type="button">Mark Draft</button>
-            <button class="ghost" id="openRubric" type="button">Open Self-Check</button>
-            <button class="ghost" id="insertRubric" type="button">Insert Self-Check</button>
-            <button class="ghost" id="clearDraft" type="button">Clear</button>
+        <div class="highlighted-draft" id="highlightedDraft">Write or paste a draft, then click Mark Draft.</div>
+      </div>
+    </section>
+
+    <aside class="side" aria-label="Writing helpers">
+      <nav class="tabs" aria-label="Helper sections">
+        <button class="tab active" type="button" data-tab="prompts">Prompts</button>
+        <button class="tab" type="button" data-tab="excerpts">Examples</button>
+        <button class="tab" type="button" data-tab="drafts">Drafts</button>
+        <button class="tab" type="button" data-tab="words">Words</button>
+        <button class="tab" type="button" data-tab="phrases">Phrases</button>
+        <button class="tab" type="button" data-tab="infographics">Infographics</button>
+        <button class="tab" type="button" data-tab="plan">Plan</button>
+        <button class="tab" type="button" data-tab="rubric">Rubric</button>
+      </nav>
+
+      <section class="panel">
+        <div id="prompts" class="tab-panel">
+          <div class="panel-section">
+            <div class="panel-head"><h2>Suggested Titles</h2><button class="mini" id="shuffleTitles" type="button">R</button></div>
+            <div id="titleList"></div>
+          </div>
+          <div class="panel-section">
+            <div class="panel-head"><h2>Prompts</h2><button class="mini" id="shufflePrompts" type="button">R</button></div>
+            <div id="promptList"></div>
+          </div>
+        </div>
+
+        <div id="excerpts" class="tab-panel hidden">
+          <div class="panel-section">
+            <div class="panel-head"><h2>Guided Examples</h2><button class="mini" id="shuffleExcerpts" type="button">R</button></div>
+            <div id="excerptList"></div>
+          </div>
+          <div class="panel-section">
+            <div class="panel-head"><h2>Editable Story Workshop</h2><span class="level-badge" id="exampleStageStatus">Plan</span></div>
+            <div class="example-workshop">
+              <select id="exampleStorySelect" aria-label="Example story"></select>
+              <div class="example-stage-tabs" id="exampleStageTabs" aria-label="Example story stages"></div>
+              <p class="bank-context" id="exampleGuidance"></p>
+              <textarea class="example-editor" id="exampleStoryEditor" lang="en-GB" spellcheck="true" aria-label="Editable example story"></textarea>
+              <div class="example-workshop-actions">
+                <button class="solid" id="saveExampleStage" type="button">Save This Stage</button>
+                <button class="ghost" id="loadExampleDraft" type="button">Open in Main Draft</button>
+                <button class="ghost" id="resetExampleStage" type="button">Reset Stage</button>
+              </div>
+              <p class="muted" id="exampleSaveStatus">Choose a stage, make changes, and save your version.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="drafts" class="tab-panel hidden">
+          <div class="panel-section">
+            <div class="panel-head"><h2>Saved Drafts</h2><span class="level-badge" id="draftCount">0</span></div>
+            <div class="draft-save-row">
+              <input id="draftSaveName" placeholder="Draft name" aria-label="Draft name" />
+              <button class="solid" id="saveDraftVersion" type="button">Save Draft</button>
+            </div>
+            <div id="draftList"></div>
+          </div>
+        </div>
+
+        <div id="words" class="tab-panel hidden">
+          <div class="panel-section">
+            <div class="panel-head"><h2>Word Bank</h2></div>
+            <div class="select-row">
+              <select id="wordCategory" aria-label="Word category">
+                <option value="all">All words</option>
+                <option value="sensory">Sensory detail</option>
+                <option value="sensorySight">Sight</option>
+                <option value="sensorySound">Sound</option>
+                <option value="sensoryTouch">Touch</option>
+                <option value="sensoryTaste">Taste</option>
+                <option value="sensorySmell">Smell</option>
+                <option value="emotion">Emotion</option>
+                <option value="action">Action</option>
+                <option value="setting">Setting</option>
+                <option value="formal">Formal report words</option>
+                <option value="formalLetter">Formal letter words</option>
+                <option value="informalLetter">Informal letter words</option>
+              </select>
+              <input id="wordSearch" placeholder="Search words" aria-label="Search words" />
+            </div>
+            <div class="chip-grid" id="wordGrid"></div>
+          </div>
+        </div>
+
+        <div id="phrases" class="tab-panel hidden">
+          <div class="panel-section">
+            <div class="panel-head"><h2>Language Use</h2></div>
+            <div class="select-row">
+              <select id="phraseCategory" aria-label="Phrase category"></select>
+              <button class="ghost" id="addPhraseSet" type="button">Add Set</button>
+            </div>
+            <div id="phraseList"></div>
+          </div>
+        </div>
+
+        <div id="infographics" class="tab-panel hidden">
+          <div class="panel-section">
+            <div class="panel-head"><h2>Writing Reminders</h2></div>
+            <div class="infographic-grid">
+              <button class="infographic-card" type="button" data-image="assets/types-of-writing.jpg" data-title="Types of Writing">
+                <img src="assets/types-of-writing.jpg" alt="Types of writing infographic showing narrative, expository, argumentative, and descriptive writing" />
+                <strong>Types of Writing</strong>
+                <span>Use this to choose the best writing form and purpose before drafting.</span>
+              </button>
+              <button class="infographic-card" type="button" data-image="assets/mnemonic-magic.jpg" data-title="Mnemonic Magic: HEARTS">
+                <img src="assets/mnemonic-magic.jpg" alt="Mnemonic Magic HEARTS story ideas infographic" />
+                <strong>Mnemonic Magic: HEARTS</strong>
+                <span>Use this to remember story idea types: horror, extraordinary, adventure, realistic, tragedy, and surprise or happy stories.</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="plan" class="tab-panel hidden">
+          <div class="panel-section">
+            <div class="panel-head"><h2 id="planTitle">Writing Plan</h2><button class="mini" id="resetOutline" type="button">R</button></div>
+            <div class="outline-grid" id="outlineGrid"></div>
+          </div>
+        </div>
+
+        <div id="rubric" class="tab-panel hidden">
+          <div class="panel-section">
+            <div class="panel-head"><h2>Self-Check Rubric</h2><span class="level-badge" id="rubricLevel">Unsatisfactory</span></div>
+            <div class="rubric-summary">
+              <div class="score-ring"><div><strong id="rubricTotal">0</strong><span>out of 20</span></div></div>
+              <div>
+                <p class="muted" id="rubricGuide"></p>
+                <div class="rubric-controls">
+                  <button class="solid" id="autoMark" type="button">Mark Draft</button>
+                  <label class="switch-label"><input id="liveAutoCheck" type="checkbox" checked> Check while typing</label>
+                </div>
+              </div>
+            </div>
+            <p class="bank-context" id="autoSummary">Write or paste a draft, then use Mark Draft for an estimated self-check.</p>
+            <div class="rubric-list" id="rubricList"></div>
+            <div class="panel-section">
+              <div class="panel-head"><h2>Tutoring Recommendations</h2><span class="level-badge" id="recommendationCount">0</span></div>
+              <div class="issue-list" id="issueList"></div>
+            </div>
           </div>
         </div>
       </section>
+    </aside>
+  </main>
 
-      <aside class="side" aria-label="Writing helpers">
-        <nav class="tabs" aria-label="Helper sections">
-          <button class="tab active" type="button" data-tab="prompts">Prompts</button>
-          <button class="tab" type="button" data-tab="words">Words</button>
-          <button class="tab" type="button" data-tab="phrases">Phrases</button>
-          <button class="tab" type="button" data-tab="plan">Plan</button>
-          <button class="tab" type="button" data-tab="rubric">Rubric</button>
-        </nav>
-
-        <section class="panel">
-          <div id="prompts" class="tab-panel">
-            <div class="panel-section">
-              <div class="panel-head">
-                <h2>Suggested Titles</h2>
-                <button class="mini" id="shuffleTitles" type="button" title="Refresh titles">R</button>
-              </div>
-              <div id="titleList"></div>
-            </div>
-            <div class="panel-section">
-              <div class="panel-head">
-                <h2>Prompts</h2>
-                <button class="mini" id="shufflePrompts" type="button" title="Refresh prompts">R</button>
-              </div>
-              <div id="promptList"></div>
-            </div>
-          </div>
-
-          <div id="words" class="tab-panel hidden">
-            <div class="panel-section">
-              <div class="panel-head"><h2>Word Bank</h2></div>
-              <div class="select-row">
-                <select id="wordCategory" aria-label="Word category">
-                  <option value="all">All words</option>
-                  <option value="sensory">Sensory detail</option>
-                  <option value="emotion">Emotion</option>
-                  <option value="action">Action</option>
-                  <option value="setting">Setting</option>
-                  <option value="formal">Formal report words</option>
-                </select>
-                <input class="search" id="wordSearch" placeholder="Search words" aria-label="Search words" />
-              </div>
-              <div class="chip-grid" id="wordGrid"></div>
-            </div>
-          </div>
-
-          <div id="phrases" class="tab-panel hidden">
-            <div class="panel-section">
-              <div class="panel-head"><h2>Language Use</h2></div>
-              <div class="select-row">
-                <select id="phraseCategory" aria-label="Phrase category"></select>
-                <button class="ghost" id="addPhraseSet" type="button">Add Set</button>
-              </div>
-              <div class="phrase-list" id="phraseList"></div>
-            </div>
-          </div>
-
-          <div id="plan" class="tab-panel hidden">
-            <div class="panel-section">
-              <div class="panel-head">
-                <h2 id="planTitle">Writing Plan</h2>
-                <button class="mini" id="resetOutline" type="button" title="Reset plan">R</button>
-              </div>
-              <div class="outline-grid" id="outlineGrid"></div>
-            </div>
-          </div>
-
-          <div id="rubric" class="tab-panel hidden">
-            <div class="panel-section">
-              <div class="panel-head">
-                <h2>Self-Check Rubric</h2>
-                <span class="level-badge" id="rubricLevel">Unsatisfactory</span>
-              </div>
-              <div class="rubric-summary">
-                <div class="score-ring"><div><strong id="rubricTotal">0</strong><span>out of 20</span></div></div>
-                <div>
-                  <p class="source-note" id="rubricGuide"></p>
-                  <div class="rubric-controls">
-                    <button class="solid" id="autoMark" type="button">Mark Draft</button>
-                    <label class="switch-label"><input id="liveAutoCheck" type="checkbox" checked> Check while typing</label>
-                  </div>
-                </div>
-              </div>
-              <p class="bank-context" id="autoSummary">Write or paste a draft, then use Mark Draft for an estimated self-check.</p>
-              <div class="rubric-list" id="rubricList"></div>
-            </div>
-          </div>
-        </section>
-      </aside>
-    </main>
-  </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="image-viewer" id="imageViewer" role="dialog" aria-modal="true" aria-label="Infographic viewer">
+    <div class="image-viewer-inner">
+      <div class="image-viewer-head">
+        <h2 id="viewerTitle">Infographic</h2>
+        <button class="ghost" id="closeViewer" type="button">Close</button>
+      </div>
+      <img id="viewerImage" src="" alt="" />
+    </div>
+  </div>
 
   <script>
-    const stateKey = "essayWritingStudio.v2";
-
-    const achievement = [
-      "Unsatisfactory", "Makes an Attempt", "Emerging", "Progressing", "Proficient", "Exemplary"
+    const stateKey = "essayWritingStudio.tutor.v1";
+    const draftsKey = "essayWritingStudio.savedDrafts.v1";
+    const exampleStoriesKey = "essayWritingStudio.exampleStories.v1";
+    const processStages = [
+      ["plan", "Plan"],
+      ["draft", "Draft"],
+      ["revise", "Revise"],
+      ["edit", "Edit"],
+      ["publish", "Publish"]
     ];
+    const achievement = ["Unsatisfactory", "Makes an Attempt", "Emerging", "Progressing", "Proficient", "Exemplary"];
 
     const scoreExplanations = {
-      content: [
-        "The writing does not yet show the required ideas or details for this task.",
-        "A small attempt is present, but important information is missing or unclear.",
-        "Some relevant ideas are included, but they need more development and support.",
-        "The main ideas are mostly present, though some details need to be clearer or fuller.",
-        "The writing meets the standard with clear, relevant, and developed content.",
-        "The content is rich, complete, and purposeful, with details that strongly suit the task."
-      ],
-      language: [
-        "The language does not yet communicate the ideas clearly.",
-        "Some useful words or phrases are attempted, but the language often weakens meaning.",
-        "The language is partly suitable, but it needs more precise wording and stronger control.",
-        "The language is generally clear, with some effective words or phrases.",
-        "The language suits the form well and helps the reader understand the writing.",
-        "The language is vivid, precise, and consistently effective for the form."
-      ],
-      organisation: [
-        "The writing is not yet arranged in a clear order.",
-        "There is a beginning attempt at order, but ideas are mostly jumbled.",
-        "Some order is present, but paragraphing or sequencing needs work.",
-        "The writing is mostly easy to follow, with some weak transitions or paragraph choices.",
-        "The writing is clearly sequenced and paragraphed for the form.",
-        "The organisation is smooth, purposeful, and easy for the reader to follow."
-      ],
-      grammar: [
-        "Errors make the writing very difficult to read.",
-        "Many errors are present, so the first goal is to create clear simple sentences.",
-        "The writing is understandable, but frequent errors still interrupt fluency.",
-        "Errors are present, but the meaning is usually clear.",
-        "Grammar and mechanics are mostly accurate and support fluent reading.",
-        "Control of grammar and mechanics is strong, accurate, and polished."
-      ]
+      content: ["The writing does not yet show the required ideas or details for this task.", "A small attempt is present, but important information is missing or unclear.", "Some relevant ideas are included, but they need more development and support.", "The main ideas are mostly present, though some details need to be clearer or fuller.", "The writing meets the standard with clear, relevant, and developed content.", "The content is rich, complete, and purposeful, with details that strongly suit the task."],
+      language: ["The language does not yet communicate the ideas clearly.", "Some useful words or phrases are attempted, but the language often weakens meaning.", "The language is partly suitable, but it needs more precise wording and stronger control.", "The language is generally clear, with some effective words or phrases.", "The language suits the form well and helps the reader understand the writing.", "The language is vivid, precise, and consistently effective for the form."],
+      organisation: ["The writing is not yet arranged in a clear order.", "There is a beginning attempt at order, but ideas are mostly jumbled.", "Some order is present, but paragraphing or sequencing needs work.", "The writing is mostly easy to follow, with some weak transitions or paragraph choices.", "The writing is clearly sequenced and paragraphed for the form.", "The organisation is smooth, purposeful, and easy for the reader to follow."],
+      grammar: ["Errors make the writing very difficult to read.", "Many errors are present, so the first goal is to create clear simple sentences.", "The writing is understandable, but frequent errors still interrupt fluency.", "Errors are present, but the meaning is usually clear.", "Grammar and mechanics are mostly accurate and support fluent reading.", "Control of grammar and mechanics is strong, accurate, and polished."]
     };
 
     const typeData = {
@@ -661,325 +745,258 @@
         label: "Narrative story",
         help: "Tell a story with setting, characters, conflict, rising action, climax, falling action, and resolution.",
         titles: ["The Moment Everything Shifted", "A Lesson I Did Not Expect", "The Day I Found My Voice", "When Courage Arrived Quietly", "The Memory That Changed Me"],
-        prompts: [
-          ["A turning point", "Write about a day when one decision changed how you saw yourself."],
-          ["A difficult choice", "Tell the story of a time when doing the right thing was not easy."],
-          ["A remembered sound", "Begin with a sound you cannot forget and build the story around it."],
-          ["A quiet victory", "Write about a moment that may have looked small but felt important."]
-        ],
+        prompts: [["A turning point", "Write about a day when one decision changed how you saw yourself."], ["A difficult choice", "Tell the story of a time when doing the right thing was not easy."], ["A remembered sound", "Begin with a sound you cannot forget and build the story around it."], ["A quiet victory", "Write about a moment that may have looked small but felt important."]],
         plan: [["Hook", "A vivid first image, sound, or question"], ["Setting", "Where and when the story begins"], ["Conflict", "The problem, challenge, or important choice"], ["Climax", "The most exciting or tense moment"], ["Resolution", "How the story ends and what changed"]],
         rubricGuide: "Guided by the SEA narrative rubric: 0-5 marks each for Content, Language Use, Organisation, and Grammar and Mechanics.",
-        checklist: {
-          content: ["Time and place are clear", "Characters are developed through description, action, or dialogue", "Plot has exposition, rising action, climax, falling action, and resolution"],
-          language: ["Descriptive language creates clear images", "Figurative language is used effectively", "Sensory details appeal to sight, sound, touch, taste, or smell"],
-          organisation: ["Events are sequenced clearly", "Paragraphs separate new events, speakers, or ideas", "Transitions help the story move smoothly"],
-          grammar: ["Sentences are complete", "Dialogue and punctuation are accurate", "Spelling, capitalisation, tense, and agreement are checked"]
-        }
+        checklist: { content: ["Time and place are clear", "Characters are developed through description, action, or dialogue", "Plot has exposition, rising action, climax, falling action, and resolution"], language: ["Descriptive language creates clear images", "Figurative language is used effectively", "Sensory details appeal to sight, sound, touch, taste, or smell"], organisation: ["Events are sequenced clearly", "Paragraphs separate new events, speakers, or ideas", "Transitions help the story move smoothly"], grammar: ["Sentences are complete", "Dialogue and punctuation are accurate", "Spelling, capitalisation, tense, and agreement are checked"] }
       },
       report: {
         label: "Report",
         help: "Write a clear formal account of what happened, where and when it happened, who was involved, and how it ended.",
         titles: ["Report on a School Incident", "Report on a Lunchtime Accident", "Report on a Class Visit", "Report on a Community Event", "Report on a Lost Item"],
-        prompts: [
-          ["School incident", "Write a report about an incident that took place during lunchtime."],
-          ["Class visit", "Write a report about a class trip, including what happened and who was involved."],
-          ["Sports day", "Write a report about an event that happened during sports day."],
-          ["Community problem", "Write a report about a problem observed in your community."]
-        ],
+        prompts: [["School incident", "Write a report about an incident that took place during lunchtime."], ["Class visit", "Write a report about a class trip, including what happened and who was involved."], ["Sports day", "Write a report about an event that happened during sports day."], ["Community problem", "Write a report about a problem observed in your community."]],
         plan: [["Heading", "State what the report is about"], ["Date, time, place", "Give exact details early"], ["Persons involved", "Name or identify people clearly"], ["What happened", "Give events in order"], ["Ending", "State the outcome or action taken"]],
         rubricGuide: "Guided by the SEA report rubric: 0-5 marks each for Content, Language Use, Organisation, and Grammar and Mechanics.",
-        checklist: {
-          content: ["Date, time, and place are included", "Persons involved are clearly identified", "Main events and relevant supporting details are included"],
-          language: ["Formal Standard English is used", "Tone is factual rather than story-like", "Unnecessary figurative language and slang are avoided"],
-          organisation: ["Introduction, body, and ending are clear", "Events are in chronological order", "Paragraphs separate major details"],
-          grammar: ["Sentences are clear and complete", "Capital letters are used for names and sentence beginnings", "Punctuation, spelling, agreement, and tense are checked"]
-        }
+        checklist: { content: ["Date, time, and place are included", "Persons involved are clearly identified", "Main events and relevant supporting details are included"], language: ["Formal Standard English is used", "Tone is factual rather than story-like", "Unnecessary figurative language and slang are avoided"], organisation: ["Introduction, body, and ending are clear", "Events are in chronological order", "Paragraphs separate major details"], grammar: ["Sentences are clear and complete", "Capital letters are used for names and sentence beginnings", "Punctuation, spelling, agreement, and tense are checked"] }
+      },
+      formalLetter: {
+        label: "Formal letter",
+        help: "Write to a person in authority or an organisation using a respectful tone, clear purpose, address, date, greeting, body, formal closing, and signature.",
+        titles: ["Letter to the Principal", "Letter of Complaint", "Letter of Request", "Letter to the Editor", "Application for Permission"],
+        prompts: [["School request", "Write a formal letter to your principal requesting a useful change at school."], ["Letter of complaint", "Write a polite formal letter about a problem that needs to be solved."], ["Permission request", "Write a formal letter asking permission to attend or organise an event."], ["Community concern", "Write a formal letter to a community leader about an issue that needs attention."]],
+        plan: [["Sender's address", "Write your address at the top"], ["Date", "Write the date below the address"], ["Recipient and greeting", "Use Dear Sir or Madam, Dear Principal, or a named title"], ["Purpose", "State clearly why you are writing"], ["Details", "Explain facts, reasons, request, complaint, or suggestion"], ["Formal closing", "Use Yours faithfully or Yours sincerely"], ["Signature", "Sign or write your name"]],
+        rubricGuide: "Uses the SEA criteria as a self-check frame, with formal letters focused on purpose, respectful tone, correct format, audience, and clear supporting details.",
+        checklist: { content: ["The purpose is clear in the opening", "The audience or person in authority is clear", "Relevant details, reasons, requests, complaints, or suggestions are included"], language: ["Tone is respectful and formal", "Formal letter phrases are used correctly", "Slang and overly casual language are avoided"], organisation: ["Address, date, greeting, body, closing, and signature are in a sensible order", "Paragraphs separate purpose, details, and final request or thanks", "The letter opens and closes formally"], grammar: ["Sentences are complete and clear", "Capital letters are used for names, places, titles, and sentence beginnings", "Punctuation, spelling, agreement, and tense are checked"] }
+      },
+      informalLetter: {
+        label: "Informal letter",
+        help: "Write to a friend or family member using a warm natural tone, address, date, friendly greeting, personal details, closing, and signature.",
+        titles: ["Letter to a Friend", "Thank You Letter", "Invitation to a Cousin", "Letter About My Holiday", "Letter Sharing Good News"],
+        prompts: [["Friendly news", "Write an informal letter to a friend telling them about something exciting that happened."], ["Thank you letter", "Write a friendly letter thanking someone who helped you."], ["Invitation letter", "Write an informal letter inviting a friend or relative to an event."], ["Holiday letter", "Write a letter to a cousin describing a recent holiday or special day."]],
+        plan: [["Address", "Write your address at the top"], ["Date", "Write the date below the address"], ["Friendly greeting", "Use Dear Friend, Dear Cousin, or the person's name"], ["Opening chat", "Ask how the person is or refer to their last letter"], ["Main message", "Share news, thanks, invitation, or personal details"], ["Friendly closing", "Use Your friend, With love, or Best wishes"], ["Signature", "Write your name"]],
+        rubricGuide: "Uses the SEA criteria as a self-check frame, with informal letters focused on clear purpose, friendly tone, personal detail, correct format, and natural organisation.",
+        checklist: { content: ["The reason for writing is clear", "Personal details or feelings are included", "The message suits a friend or family member"], language: ["Tone is warm and friendly", "Informal letter phrases are used naturally", "Language is clear without becoming careless"], organisation: ["Address, date, greeting, body, friendly closing, and signature are in a sensible order", "Paragraphs separate opening chat, main message, and ending", "The letter sounds complete"], grammar: ["Sentences are complete and clear", "Names, places, and sentence beginnings use capital letters", "Punctuation, spelling, agreement, and tense are checked"] }
       },
       descriptive: {
         label: "Descriptive essay",
         help: "Paint a clear picture of a person, place, object, or moment using precise details and sensory language.",
         titles: ["The Place I Remember Most", "A Person I Will Never Forget", "The Most Unusual Room", "A Morning at the Market", "The View from My Window"],
-        prompts: [
-          ["A special place", "Describe a place that feels important to you."],
-          ["A memorable person", "Describe someone using appearance, actions, voice, and habits."],
-          ["A busy scene", "Describe a market, playground, beach, or street at its busiest moment."],
-          ["An object with meaning", "Describe an object and show why it matters."]
-        ],
+        prompts: [["A special place", "Describe a place that feels important to you."], ["A memorable person", "Describe someone using appearance, actions, voice, and habits."], ["A busy scene", "Describe a market, playground, beach, or street at its busiest moment."], ["An object with meaning", "Describe an object and show why it matters."]],
         plan: [["Main impression", "What feeling should the reader get?"], ["Sight", "Colours, shapes, movement, distance"], ["Sound", "Voices, silence, rhythm, noise"], ["Other senses", "Smell, touch, taste, temperature"], ["Reflection", "Why this subject matters"]],
         rubricGuide: "Uses the SEA criteria as a self-check frame, with descriptive writing focused on vivid, organised detail.",
-        checklist: {
-          content: ["The subject is clear and well developed", "Important features are selected, not listed randomly", "Details help the reader understand why it matters"],
-          language: ["Precise adjectives and verbs are used", "Sensory details are strong", "Figurative language supports the description"],
-          organisation: ["Details are grouped logically", "The writing moves smoothly from one focus to another", "Paragraphs help the reader follow the description"],
-          grammar: ["Sentences are varied and complete", "Punctuation and capitalisation are accurate", "Spelling and word forms are checked"]
-        }
+        checklist: { content: ["The subject is clear and well developed", "Important features are selected, not listed randomly", "Details help the reader understand why it matters"], language: ["Precise adjectives and verbs are used", "Sensory details are strong", "Figurative language supports the description"], organisation: ["Details are grouped logically", "The writing moves smoothly from one focus to another", "Paragraphs help the reader follow the description"], grammar: ["Sentences are varied and complete", "Punctuation and capitalisation are accurate", "Spelling and word forms are checked"] }
       },
       persuasive: {
         label: "Persuasive essay",
         help: "Take a clear position, support it with reasons and examples, and convince the reader respectfully.",
         titles: ["Why Students Should Read More", "The Case for Cleaner School Grounds", "Why Every Child Should Learn to Swim", "Should Homework Be Reduced?", "A Better Way to Use Break Time"],
-        prompts: [
-          ["School improvement", "Persuade your principal to make one useful change at school."],
-          ["A healthy habit", "Persuade classmates to adopt a healthy habit."],
-          ["Community issue", "Persuade readers to help solve a community problem."],
-          ["A fair rule", "Argue for or against a rule that affects students."]
-        ],
+        prompts: [["School improvement", "Persuade your principal to make one useful change at school."], ["A healthy habit", "Persuade classmates to adopt a healthy habit."], ["Community issue", "Persuade readers to help solve a community problem."], ["A fair rule", "Argue for or against a rule that affects students."]],
         plan: [["Position", "State your opinion clearly"], ["Reason 1", "Give your strongest reason and example"], ["Reason 2", "Add another reason with evidence"], ["Opposing view", "Respond respectfully to another viewpoint"], ["Conclusion", "End with a clear call to action"]],
         rubricGuide: "Uses the SEA criteria as a self-check frame, with persuasive writing focused on reasons, evidence, and clear position.",
-        checklist: {
-          content: ["A clear opinion is stated", "Reasons and examples support the opinion", "A counterpoint or reader concern is addressed"],
-          language: ["Persuasive phrases are used appropriately", "Tone is confident and respectful", "Words are precise and convincing"],
-          organisation: ["Introduction, body, and conclusion are clear", "Each paragraph has one main idea", "Transitions connect reasons"],
-          grammar: ["Sentences are complete and varied", "Punctuation and capitalisation are accurate", "Spelling, agreement, and tense are checked"]
-        }
+        checklist: { content: ["A clear opinion is stated", "Reasons and examples support the opinion", "A counterpoint or reader concern is addressed"], language: ["Persuasive phrases are used appropriately", "Tone is confident and respectful", "Words are precise and convincing"], organisation: ["Introduction, body, and conclusion are clear", "Each paragraph has one main idea", "Transitions connect reasons"], grammar: ["Sentences are complete and varied", "Punctuation and capitalisation are accurate", "Spelling, agreement, and tense are checked"] }
       },
       expository: {
         label: "Expository essay",
         help: "Explain a topic clearly with facts, steps, examples, or reasons so the reader understands it better.",
         titles: ["How to Prepare for an Exam", "Why Water Conservation Matters", "The Importance of Teamwork", "How Plants Grow", "What Makes a Good Friend"],
-        prompts: [
-          ["Explain a process", "Explain how to prepare for an important school event."],
-          ["Explain a value", "Explain why honesty, teamwork, or responsibility is important."],
-          ["Explain a problem", "Explain a common problem and possible solutions."],
-          ["Explain a topic", "Teach younger students about a topic you know well."]
-        ],
+        prompts: [["Explain a process", "Explain how to prepare for an important school event."], ["Explain a value", "Explain why honesty, teamwork, or responsibility is important."], ["Explain a problem", "Explain a common problem and possible solutions."], ["Explain a topic", "Teach younger students about a topic you know well."]],
         plan: [["Topic", "What are you explaining?"], ["Main idea 1", "First fact, step, or reason"], ["Main idea 2", "Second fact, step, or reason"], ["Main idea 3", "Third fact, step, or reason"], ["Conclusion", "Sum up the explanation clearly"]],
         rubricGuide: "Uses the SEA criteria as a self-check frame, with expository writing focused on clarity, relevant details, and logical order.",
-        checklist: {
-          content: ["The topic is clear", "Main ideas are relevant and explained", "Facts, examples, or steps support the explanation"],
-          language: ["Explanatory words are clear and precise", "Tone is informative", "Definitions or examples are easy to understand"],
-          organisation: ["Ideas are ordered logically", "Paragraphs separate main ideas", "Transitions show sequence, cause, or comparison"],
-          grammar: ["Sentences are complete and clear", "Punctuation and capitalisation are accurate", "Spelling, agreement, and tense are checked"]
+        checklist: { content: ["The topic is clear", "Main ideas are relevant and explained", "Facts, examples, or steps support the explanation"], language: ["Explanatory words are clear and precise", "Tone is informative", "Definitions or examples are easy to understand"], organisation: ["Ideas are ordered logically", "Paragraphs separate main ideas", "Transitions show sequence, cause, or comparison"], grammar: ["Sentences are complete and clear", "Punctuation and capitalisation are accurate", "Spelling, agreement, and tense are checked"] }
+      }
+    };
+
+    const wordBank = [["sensorySight", "glimmering"], ["sensorySight", "radiant"], ["sensorySight", "shadowy"], ["sensorySight", "sparkling"], ["sensorySight", "misty"], ["sensorySight", "crimson"], ["sensorySight", "dazzling"], ["sensorySight", "faded"], ["sensorySound", "hushed"], ["sensorySound", "muffled"], ["sensorySound", "rumbling"], ["sensorySound", "echoing"], ["sensorySound", "crackling"], ["sensorySound", "whispering"], ["sensorySound", "buzzing"], ["sensorySound", "thunderous"], ["sensoryTouch", "gritty"], ["sensoryTouch", "rough"], ["sensoryTouch", "silky"], ["sensoryTouch", "sticky"], ["sensoryTouch", "icy"], ["sensoryTouch", "prickly"], ["sensoryTouch", "damp"], ["sensoryTouch", "smooth"], ["sensoryTaste", "sweet"], ["sensoryTaste", "bitter"], ["sensoryTaste", "salty"], ["sensoryTaste", "sour"], ["sensoryTaste", "spicy"], ["sensoryTaste", "tangy"], ["sensoryTaste", "creamy"], ["sensoryTaste", "bland"], ["sensorySmell", "fragrant"], ["sensorySmell", "smoky"], ["sensorySmell", "musty"], ["sensorySmell", "fresh"], ["sensorySmell", "stale"], ["sensorySmell", "peppery"], ["sensorySmell", "earthy"], ["sensorySmell", "perfumed"], ["emotion", "uneasy"], ["emotion", "hopeful"], ["emotion", "restless"], ["emotion", "astonished"], ["emotion", "determined"], ["emotion", "relieved"], ["action", "hesitated"], ["action", "stumbled"], ["action", "whispered"], ["action", "clutched"], ["action", "noticed"], ["action", "exhaled"], ["setting", "corridor"], ["setting", "shoreline"], ["setting", "doorway"], ["setting", "market"], ["setting", "classroom"], ["setting", "rain-soaked street"], ["formal", "incident"], ["formal", "occurred"], ["formal", "witnessed"], ["formal", "reported"], ["formal", "concluded"], ["formal", "recommendation"], ["formal", "chronological"], ["formal", "evidence"], ["formal", "persons involved"], ["formal", "action taken"], ["formalLetter", "recipient"], ["formalLetter", "request"], ["formalLetter", "complaint"], ["formalLetter", "consideration"], ["formalLetter", "response"], ["formalLetter", "sincerely"], ["formalLetter", "faithfully"], ["formalLetter", "respectfully"], ["informalLetter", "friend"], ["informalLetter", "cousin"], ["informalLetter", "appreciation"], ["informalLetter", "invitation"], ["informalLetter", "news"], ["informalLetter", "regards"], ["informalLetter", "best wishes"], ["informalLetter", "with love"]];
+
+    const titleThemes = [
+      { name: "storm or weather", keywords: ["storm", "rain", "water", "shore", "window", "morning", "weather"], words: ["thunderous", "dripping", "misty", "damp", "wind-lashed", "silver-grey", "sodden", "rumbling"], phrases: ["The sky growled like a warning.", "Rain tapped the roof like impatient fingers.", "The wind pushed against us like an invisible wall.", "The clouds folded over the day like a dark blanket."] },
+      { name: "courage, fear, or change", keywords: ["courage", "fear", "shifted", "voice", "choice", "steps", "changed", "turning", "lesson"], words: ["trembling", "breathless", "steady", "sharp", "warm", "heavy", "fluttering", "silent"], phrases: ["My fear sat in my chest like a stone.", "Courage arrived like a small light in a dark room.", "My heart hammered like a drum.", "The moment opened like a door I had to walk through."] },
+      { name: "school or incident", keywords: ["school", "incident", "lunchtime", "class", "homework", "exam", "students", "break"], words: ["crowded", "echoing", "noisy", "chalky", "hurried", "tense", "bright", "restless"], phrases: ["The corridor buzzed like a beehive.", "The bell sliced through the noise.", "The classroom grew quiet like a held breath.", "The news spread across the yard like ripples in water."] },
+      { name: "memory or reflection", keywords: ["memory", "remember", "lesson", "place", "person", "forget", "important"], words: ["faded", "familiar", "tender", "quiet", "golden", "distant", "soft", "bittersweet"], phrases: ["The memory returned like an old song.", "The place held my thoughts like a secret box.", "Her words stayed with me like footprints in wet sand.", "That moment glowed in my mind like a small lamp."] }
+    ];
+
+    const figurativeBank = {
+      "Similes": ["My heart beat like a drum.", "The hallway was as quiet as a secret.", "The rain fell like silver threads.", "The crowd moved like a restless sea."],
+      "Metaphors": ["Fear was a stone in my chest.", "The classroom was a furnace of noise.", "Hope was a small lamp in the dark.", "The market was a river of colour."],
+      "Personification": ["The wind whispered through the trees.", "The old gate groaned in protest.", "The sun smiled over the playground.", "Shadows crept along the wall."],
+      "Onomatopoeia": ["Bang! The door flew open.", "The leaves went crunch under my shoes.", "Drip, drip, drip echoed in the room.", "Buzz! The lights flickered above us."],
+      "Alliteration": ["The soft silver sea shimmered.", "Brave boys bounded across the field.", "Tiny twigs tapped the window.", "Dusty doors dragged against the floor."],
+      "Hyperbole": ["I waited for a thousand years.", "My bag weighed a ton.", "The scream could wake the whole village.", "I was so hungry I could eat the table."],
+      "Imagery": ["The air smelt of wet earth and mango leaves.", "Golden light spilled across the floor.", "The rough rope scratched my palm.", "The spicy scent floated through the market."]
+    };
+
+    const phraseBank = {
+      narrative: { "Figurative language": [], "Similes": [], "Metaphors": [], "Personification": [], "Onomatopoeia": [], "Alliteration": [], "Hyperbole": [], "Imagery": [], "Opening": ["I did not know it yet, but that morning would stay with me.", "The first thing I noticed was...", "At the time, it seemed like an ordinary day."], "Transition": ["As the minutes passed, the mood began to change.", "For a moment, I stood between two choices.", "Then, without warning, everything moved faster."], "Reflection": ["Looking back, I understand why that moment mattered.", "What I learned was quieter than I expected.", "That experience changed the way I saw..."] },
+      report: { "Opening": ["This report gives an account of...", "The incident occurred on...", "The persons involved were..."], "Sequence": ["According to the order of events...", "Shortly after this occurred...", "The matter ended when..."], "Formal ending": ["The matter was reported to...", "The following action was taken...", "It is recommended that..."] },
+      formalLetter: { "Formal greeting": ["Dear Sir or Madam,", "Dear Principal,", "Dear Mr Brown,", "Dear Mrs Ali,"], "Purpose": ["I am writing to...", "The reason for this letter is...", "I would like to request...", "I would like to bring to your attention..."], "Formal tone": ["I would be grateful if...", "Thank you for your consideration.", "I look forward to your response.", "Please accept my sincere thanks."], "Formal closing": ["Yours faithfully,", "Yours sincerely,", "Respectfully,"] },
+      informalLetter: { "Friendly greeting": ["Dear Friend,", "Dear Cousin,", "Dear Grandma,", "Hi Maya,"], "Opening chat": ["I hope you are well.", "It was lovely to hear from you.", "I have so much to tell you.", "I wanted to tell you about..."], "Friendly tone": ["You would not believe what happened.", "I cannot wait to see you again.", "Thank you so much for...", "I hope you can come."], "Friendly closing": ["Your friend,", "With love,", "Best wishes,", "Kind regards,"] },
+      descriptive: { "Figurative language": [], "Similes": [], "Metaphors": [], "Personification": [], "Onomatopoeia": [], "Alliteration": [], "Hyperbole": [], "Imagery": [], "Sensory focus": ["The first detail that stood out was...", "The air seemed to carry...", "Every corner of the place suggested..."], "Movement": ["My eyes moved from... to...", "Beyond that, I noticed...", "Near the edge of the scene..."], "Reflection": ["This place remains important because...", "What made it unforgettable was...", "Even now, I can still picture..."] },
+      persuasive: { "Figurative language": [], "Metaphors": [], "Alliteration": [], "Hyperbole": [], "Position": ["I strongly believe that...", "There are several reasons why...", "This change would benefit..."], "Evidence": ["One important reason is...", "For example...", "This shows that..."], "Conclusion": ["For these reasons, I urge...", "The best decision would be...", "If we act now..."] },
+      expository: { "Figurative language": [], "Metaphors": [], "Imagery": [], "Introduction": ["This essay explains...", "To understand this topic, we must first...", "The main idea is..."], "Development": ["First...", "Another important point is...", "This happens because..."], "Conclusion": ["In summary...", "These points show that...", "Understanding this helps us..."] }
+    };
+
+    const sampleExcerpts = {
+      narrative: [
+        { title: "Opening with tension", excerpt: "The bell rang, but I did not move. Across the crowded corridor, Miss James was holding the blue envelope I had hidden that morning.", focus: "Notice how the opening starts in the middle of a problem and makes the reader ask questions." },
+        { title: "Sensory setting", excerpt: "Rain tapped the zinc roof like impatient fingers, and the classroom smelt of damp books and sharpened pencils.", focus: "Sight, sound, smell, and figurative language help the setting feel alive." }
+      ],
+      report: [
+        { title: "Factual opening", excerpt: "This report gives an account of an incident that occurred on Monday 18 May 2026 at approximately 12:20 p.m. near the school cafeteria.", focus: "A report should quickly state what happened, when it happened, and where it happened." },
+        { title: "Chronological detail", excerpt: "First, two students slipped near the water cooler. Shortly afterwards, the area was blocked off and the matter was reported to the teacher on duty.", focus: "Events are arranged in time order and the tone stays formal." }
+      ],
+      formalLetter: [
+        { title: "Formal purpose", excerpt: "I am writing to request permission for Class 5A to use the library after school on Thursdays for reading practice.", focus: "The purpose is clear, polite, and suitable for a person in authority." },
+        { title: "Formal closing request", excerpt: "I would be grateful if you would consider this request. Thank you for your time and attention. Yours faithfully, Anika Singh", focus: "Formal letters end respectfully and remind the reader what action is being requested." }
+      ],
+      informalLetter: [
+        { title: "Friendly opening", excerpt: "Dear Maya, I hope you are well. I have so much to tell you about our trip to the beach last Saturday.", focus: "The tone sounds warm and personal because the writer is speaking to someone familiar." },
+        { title: "Sharing personal detail", excerpt: "You would not believe how cold the water felt at first, but after a few minutes we were laughing and splashing as if the sea belonged to us.", focus: "Personal feelings and sensory detail make the letter interesting." }
+      ],
+      descriptive: [
+        { title: "Focused description", excerpt: "The old mango tree leaned over the yard, its rough branches twisting like tired arms above the warm, dusty ground.", focus: "The writer focuses on one subject and uses sight, touch, and figurative language." },
+        { title: "Busy scene", excerpt: "At the market, red peppers glowed beside green limes while vendors called across the stalls and the sharp smell of seasoning filled the air.", focus: "Several senses work together to create a vivid scene." }
+      ],
+      persuasive: [
+        { title: "Clear position", excerpt: "I strongly believe that every class should have a weekly reading period because it would improve vocabulary, concentration, and confidence.", focus: "The opinion is clear and supported by reasons." },
+        { title: "Reason with example", excerpt: "For example, students who read often meet new words in context, so they are more likely to use those words correctly in their own writing.", focus: "A persuasive paragraph should explain how the example supports the point." }
+      ],
+      expository: [
+        { title: "Explaining a process", excerpt: "To prepare for an examination, a student should first organise notes by topic. Next, difficult areas should be reviewed in short daily sessions.", focus: "Expository writing teaches the reader by using clear steps." },
+        { title: "Explaining importance", excerpt: "Teamwork is important because it allows people to share ideas, divide tasks, and solve problems more quickly than they could alone.", focus: "The sentence explains a topic with reasons rather than telling a story." }
+      ]
+    };
+
+    const editableStories = {
+      missingKey: {
+        title: "The Missing Key",
+        stages: {
+          plan: {
+            guidance: "Build the story before writing: identify the setting, problem, climax, and resolution. Edit this plan to try a different direction.",
+            text: "Title: The Missing Key\n\nSetting: Grandmother's quiet wooden house on a rainy Saturday.\nCharacters: Maya and her grandmother.\nProblem: The key to an old locked box disappears.\nRising action: Maya searches the kitchen, bedroom, and wet garden while the storm grows louder.\nClimax: She hears a metallic rattle beneath the steps as floodwater rises.\nResolution: Maya retrieves the key and discovers that the box contains family photographs and a letter from her late grandfather."
+          },
+          draft: {
+            guidance: "This first draft gets the whole story down, but some details, paragraphing, spelling, and sentence control still need work.",
+            text: "It was raining and Maya was at her grandmothers house. Grandma wanted to show her an old box but the key was gone. Maya looked everywhere she looked in the kitchen and the bedroom and outside. The rain was very loud and she was getting worried becuase water was coming into the yard.\n\nThen she heard something under the step. it made a little clink sound. Maya put her hand into the cold muddy water and found the key. They opened the box and there was pictures and a letter from grandpa. Maya was happy and grandma cried."
+          },
+          revise: {
+            guidance: "The revised version develops the setting, tension, character feelings, and meaning. Change ideas or add sensory and figurative details.",
+            text: "Rain drummed on Grandmother's zinc roof as Maya searched the dim kitchen for the missing key. Without it, the small wooden box on the table would remain locked. Grandmother said the box held something important, but her trembling hands made Maya wonder if it held a secret too.\n\nMaya checked every drawer, peered beneath the bed, and finally hurried into the garden. Mud squeezed between her toes while brown water crept towards the back steps. Just as thunder shook the house, she heard a faint clink beneath the lowest board.\n\nHolding her breath, Maya reached into the icy water and closed her fingers around the key. Inside the box were faded photographs and a letter written by her late grandfather. Grandmother smiled through her tears. Maya realised that she had not only found a key; she had opened a door into her family's past."
+          },
+          edit: {
+            guidance: "The edited version checks spelling, punctuation, dialogue, tense, and paragraphing. Look closely and make any final corrections.",
+            text: "Rain drummed on Grandmother's zinc roof as Maya searched the dim kitchen for the missing key. Without it, the small wooden box on the table would remain locked.\n\n\"The box holds something important,\" Grandmother said. Her trembling hands made Maya wonder whether it held a secret too.\n\nMaya checked every drawer, peered beneath the bed, and finally hurried into the garden. Mud squeezed between her toes while brown water crept towards the back steps. Just as thunder shook the house, she heard a faint clink beneath the lowest board.\n\nHolding her breath, Maya reached into the icy water and closed her fingers around the key. Inside the box were faded photographs and a letter written by her late grandfather. Grandmother smiled through her tears. Maya realised that she had not only found a key; she had opened a door into her family's past."
+          },
+          publish: {
+            guidance: "This polished version is ready for a reader. Edit it to create your own final version, then load it into the main draft to publish.",
+            text: "The Missing Key\n\nRain drummed on Grandmother's zinc roof as Maya searched the dim kitchen for the missing key. Without it, the small wooden box resting on the table would remain locked.\n\n\"The box holds something important,\" Grandmother said. Her trembling hands made Maya wonder whether it held a secret too.\n\nMaya checked every drawer, peered beneath the bed, and finally hurried into the garden. Mud squeezed between her toes as brown water crept towards the back steps. Just as thunder shook the house, a faint clink sounded beneath the lowest board.\n\nHolding her breath, Maya reached into the icy water. Her fingers closed around something small, hard, and cold: the key.\n\nInside the box were faded photographs and a letter written by her late grandfather. Grandmother smiled through her tears as they read it together. Maya realised that she had found more than a missing key. She had opened a door into her family's past."
+          }
+        }
+      },
+      braveVoice: {
+        title: "The Day I Found My Voice",
+        stages: {
+          plan: {
+            guidance: "Use the plan to see how a personal narrative grows from a challenge and a turning point.",
+            text: "Title: The Day I Found My Voice\n\nSetting: School assembly hall on speech day.\nCharacter: Aaron, a quiet student who fears public speaking.\nProblem: His partner becomes ill, so Aaron must present alone.\nRising action: He considers leaving, hears the noisy audience, and remembers his teacher's advice.\nClimax: Aaron steps to the microphone and begins speaking.\nResolution: He completes the speech and learns that courage can begin with one sentence."
+          },
+          draft: {
+            guidance: "This rough draft contains the main events but needs stronger description, clearer paragraphs, and corrected spelling.",
+            text: "Aaron had to do a speech at school but his partner was sick. He was very scared and wanted to go home. The hall had lots of children and teachers. His hands was shaking. His teacher told him just say the first line.\n\nAaron went up and started. At first his voice was quiet then it got louder. Everybody clapped when he finish. He felt proud because he didnt run away."
+          },
+          revise: {
+            guidance: "The revision strengthens the opening, sensory detail, internal feelings, and reflection.",
+            text: "Aaron's name echoed through the assembly hall, and every conversation seemed to stop at once. His partner was home with a fever, which meant he had to deliver their speech alone. His palms felt damp, and the paper trembled between his fingers.\n\nFor one wild moment, he considered slipping through the side door. Then he remembered his teacher's words: Do not think about the whole speech. Just say the first sentence.\n\nAaron walked to the microphone. His first words were barely louder than a whisper, but the second sentence came more easily. By the final paragraph, he was looking at the audience instead of the page.\n\nThe applause surprised him. As he returned to his seat, Aaron understood that courage had not arrived all at once. It had grown, sentence by sentence."
+          },
+          edit: {
+            guidance: "The edited stage corrects dialogue punctuation, sentence agreement, apostrophes, and paragraph breaks.",
+            text: "Aaron's name echoed through the assembly hall, and every conversation seemed to stop at once. His partner was home with a fever, which meant that Aaron had to deliver their speech alone. His palms felt damp, and the paper trembled between his fingers.\n\nFor one wild moment, he considered slipping through the side door. Then he remembered his teacher's words: \"Do not think about the whole speech. Just say the first sentence.\"\n\nAaron walked to the microphone. His first words were barely louder than a whisper, but the second sentence came more easily. By the final paragraph, he was looking at the audience instead of the page.\n\nThe applause surprised him. As he returned to his seat, Aaron understood that courage had not arrived all at once. It had grown, sentence by sentence."
+          },
+          publish: {
+            guidance: "The published version is polished for fluency and impact. Students can still reshape the language and ending.",
+            text: "The Day I Found My Voice\n\nAaron's name echoed through the assembly hall, and every conversation seemed to stop at once. His partner was home with a fever, which meant that Aaron had to deliver their speech alone. His palms felt damp, and the paper trembled between his fingers.\n\nFor one wild moment, he considered slipping through the side door. Then he remembered his teacher's quiet advice: \"Do not think about the whole speech. Just say the first sentence.\"\n\nAaron walked to the microphone. His opening words were barely louder than a whisper, but the second sentence came more easily. Soon, his voice reached the back wall. By the final paragraph, he was looking at the audience instead of the page.\n\nThe applause rose around him like a wave. As he returned to his seat, Aaron understood that courage had not arrived all at once. It had grown, sentence by sentence, until the voice he had been searching for was finally his own."
+          }
         }
       }
     };
 
-    const wordBank = [
-      ["sensory", "glimmering"], ["sensory", "hushed"], ["sensory", "gritty"], ["sensory", "fragrant"], ["sensory", "muffled"], ["sensory", "radiant"],
-      ["emotion", "uneasy"], ["emotion", "hopeful"], ["emotion", "restless"], ["emotion", "astonished"], ["emotion", "determined"], ["emotion", "relieved"],
-      ["action", "hesitated"], ["action", "stumbled"], ["action", "whispered"], ["action", "clutched"], ["action", "noticed"], ["action", "exhaled"],
-      ["setting", "corridor"], ["setting", "shoreline"], ["setting", "doorway"], ["setting", "market"], ["setting", "classroom"], ["setting", "rain-soaked street"],
-      ["formal", "incident"], ["formal", "occurred"], ["formal", "witnessed"], ["formal", "reported"], ["formal", "concluded"], ["formal", "recommendation"],
-      ["formal", "chronological"], ["formal", "evidence"], ["formal", "persons involved"], ["formal", "action taken"]
-    ];
-
-    const titleThemes = [
-      {
-        name: "storm or weather",
-        keywords: ["storm", "rain", "water", "shore", "window", "morning", "weather"],
-        words: ["thunderous", "dripping", "misty", "damp", "wind-lashed", "silver-grey", "sodden", "rumbling"],
-        phrases: ["The sky growled like a warning.", "Rain tapped the roof like impatient fingers.", "The wind pushed against us like an invisible wall.", "The clouds folded over the day like a dark blanket."]
-      },
-      {
-        name: "courage, fear, or change",
-        keywords: ["courage", "fear", "shifted", "voice", "choice", "steps", "changed", "turning", "lesson"],
-        words: ["trembling", "breathless", "steady", "sharp", "warm", "heavy", "fluttering", "silent"],
-        phrases: ["My fear sat in my chest like a stone.", "Courage arrived like a small light in a dark room.", "My heart hammered like a drum.", "The moment opened like a door I had to walk through."]
-      },
-      {
-        name: "memory or reflection",
-        keywords: ["memory", "remember", "lesson", "place", "person", "forget", "important"],
-        words: ["faded", "familiar", "tender", "quiet", "golden", "distant", "soft", "bittersweet"],
-        phrases: ["The memory returned like an old song.", "The place held my thoughts like a secret box.", "Her words stayed with me like footprints in wet sand.", "That moment glowed in my mind like a small lamp."]
-      },
-      {
-        name: "school or incident",
-        keywords: ["school", "incident", "lunchtime", "class", "homework", "exam", "students", "break"],
-        words: ["crowded", "echoing", "noisy", "chalky", "hurried", "tense", "bright", "restless"],
-        phrases: ["The corridor buzzed like a beehive.", "The bell sliced through the noise.", "The classroom grew quiet like a held breath.", "The news spread across the yard like ripples in water."]
-      },
-      {
-        name: "market, street, or community",
-        keywords: ["market", "street", "community", "grounds", "cleaner", "event"],
-        words: ["bustling", "spicy", "dusty", "sunlit", "crowded", "colourful", "warm", "lively"],
-        phrases: ["The market moved like a river of colour.", "Voices rose and fell like music.", "The street shimmered under the afternoon sun.", "The crowd gathered like waves around the scene."]
-      },
-      {
-        name: "nature, plants, or growth",
-        keywords: ["plants", "grow", "garden", "tree", "water", "conservation"],
-        words: ["leafy", "fresh", "earthy", "green", "cool", "sprouting", "dew-bright", "rooted"],
-        phrases: ["The leaves opened like tiny hands.", "The garden breathed in the morning light.", "Water slipped through the soil like a hidden path.", "The plant stood like a small promise."]
-      },
-      {
-        name: "friendship or teamwork",
-        keywords: ["friend", "teamwork", "team", "swim", "sports"],
-        words: ["cheerful", "encouraging", "warm", "quick", "splashing", "steady", "bright", "breathless"],
-        phrases: ["Their encouragement lifted me like a wave.", "We moved together like parts of one machine.", "A smile spread across the group like sunlight.", "My worry melted like ice in warm hands."]
-      }
-    ];
-
-    const phraseBank = {
-      narrative: {
-        "Opening": ["I did not know it yet, but that morning would stay with me.", "The first thing I noticed was...", "At the time, it seemed like an ordinary day."],
-        "Transition": ["As the minutes passed, the mood began to change.", "For a moment, I stood between two choices.", "Then, without warning, everything moved faster."],
-        "Reflection": ["Looking back, I understand why that moment mattered.", "What I learned was quieter than I expected.", "That experience changed the way I saw..."]
-      },
-      report: {
-        "Opening": ["This report gives an account of...", "The incident occurred on...", "The persons involved were..."],
-        "Sequence": ["According to the order of events...", "Shortly after this occurred...", "The matter ended when..."],
-        "Formal ending": ["The matter was reported to...", "The following action was taken...", "It is recommended that..."]
-      },
-      descriptive: {
-        "Sensory focus": ["The first detail that stood out was...", "The air seemed to carry...", "Every corner of the place suggested..."],
-        "Movement": ["My eyes moved from... to...", "Beyond that, I noticed...", "Near the edge of the scene..."],
-        "Reflection": ["This place remains important because...", "What made it unforgettable was...", "Even now, I can still picture..."]
-      },
-      persuasive: {
-        "Position": ["I strongly believe that...", "There are several reasons why...", "This change would benefit..."],
-        "Evidence": ["One important reason is...", "For example...", "This shows that..."],
-        "Conclusion": ["For these reasons, I urge...", "The best decision would be...", "If we act now..."]
-      },
-      expository: {
-        "Introduction": ["This essay explains...", "To understand this topic, we must first...", "The main idea is..."],
-        "Development": ["First...", "Another important point is...", "This happens because..."],
-        "Conclusion": ["In summary...", "These points show that...", "Understanding this helps us..."]
-      }
+    const spellingCorrections = {
+      teh: "the",
+      becuase: "because",
+      recieve: "receive",
+      recieved: "received",
+      definately: "definitely",
+      seperate: "separate",
+      freind: "friend",
+      freinds: "friends",
+      thier: "their",
+      wierd: "weird",
+      wich: "which",
+      alot: "a lot",
+      untill: "until",
+      occured: "occurred",
+      begining: "beginning",
+      enviroment: "environment",
+      goverment: "government",
+      adress: "address",
+      writting: "writing",
+      tommorow: "tomorrow",
+      remeber: "remember",
+      suprise: "surprise",
+      happend: "happened",
+      beautifull: "beautiful",
+      colourfull: "colourful",
+      favorite: "favourite",
+      color: "colour",
+      honor: "honour",
+      organize: "organise",
+      apologize: "apologise",
+      center: "centre",
+      meter: "metre"
     };
 
     const els = {
-      essayType: document.querySelector("#essayType"),
-      modeHelp: document.querySelector("#modeHelp"),
-      draft: document.querySelector("#draft"),
-      essayTitle: document.querySelector("#essayTitle"),
-      wordCount: document.querySelector("#wordCount"),
-      sentenceCount: document.querySelector("#sentenceCount"),
-      saveStatus: document.querySelector("#saveStatus"),
-      toast: document.querySelector("#toast"),
-      titleList: document.querySelector("#titleList"),
-      promptList: document.querySelector("#promptList"),
-      wordGrid: document.querySelector("#wordGrid"),
-      wordCategory: document.querySelector("#wordCategory"),
-      wordSearch: document.querySelector("#wordSearch"),
-      phraseCategory: document.querySelector("#phraseCategory"),
-      phraseList: document.querySelector("#phraseList"),
-      outlineGrid: document.querySelector("#outlineGrid"),
-      planTitle: document.querySelector("#planTitle"),
-      rubricList: document.querySelector("#rubricList"),
-      rubricTotal: document.querySelector("#rubricTotal"),
-      rubricTotalTop: document.querySelector("#rubricTotalTop"),
-      rubricLevel: document.querySelector("#rubricLevel"),
-      rubricGuide: document.querySelector("#rubricGuide"),
-      autoMark: document.querySelector("#autoMark"),
-      liveAutoCheck: document.querySelector("#liveAutoCheck"),
-      autoSummary: document.querySelector("#autoSummary")
+      essayType: document.querySelector("#essayType"), modeHelp: document.querySelector("#modeHelp"), draft: document.querySelector("#draft"), essayTitle: document.querySelector("#essayTitle"),
+      wordCount: document.querySelector("#wordCount"), wordCountLabel: document.querySelector("#wordCountLabel"), sentenceCount: document.querySelector("#sentenceCount"), sentenceCountLabel: document.querySelector("#sentenceCountLabel"), rubricTotalTop: document.querySelector("#rubricTotalTop"), saveStatus: document.querySelector("#saveStatus"),
+      toast: document.querySelector("#toast"), titleList: document.querySelector("#titleList"), promptList: document.querySelector("#promptList"), excerptList: document.querySelector("#excerptList"), exampleStorySelect: document.querySelector("#exampleStorySelect"), exampleStageTabs: document.querySelector("#exampleStageTabs"), exampleStoryEditor: document.querySelector("#exampleStoryEditor"), exampleGuidance: document.querySelector("#exampleGuidance"), exampleStageStatus: document.querySelector("#exampleStageStatus"), exampleSaveStatus: document.querySelector("#exampleSaveStatus"), draftList: document.querySelector("#draftList"), draftCount: document.querySelector("#draftCount"), draftSaveName: document.querySelector("#draftSaveName"), wordGrid: document.querySelector("#wordGrid"),
+      wordCategory: document.querySelector("#wordCategory"), wordSearch: document.querySelector("#wordSearch"), phraseCategory: document.querySelector("#phraseCategory"), phraseList: document.querySelector("#phraseList"),
+      outlineGrid: document.querySelector("#outlineGrid"), planTitle: document.querySelector("#planTitle"), rubricList: document.querySelector("#rubricList"), rubricTotal: document.querySelector("#rubricTotal"),
+      rubricLevel: document.querySelector("#rubricLevel"), rubricGuide: document.querySelector("#rubricGuide"), autoMark: document.querySelector("#autoMark"), liveAutoCheck: document.querySelector("#liveAutoCheck"),
+      autoSummary: document.querySelector("#autoSummary"), highlightedDraft: document.querySelector("#highlightedDraft"), issueList: document.querySelector("#issueList"), issueCount: document.querySelector("#issueCount"),
+      recommendationCount: document.querySelector("#recommendationCount"), stageStatus: document.querySelector("#stageStatus"), stageHistory: document.querySelector("#stageHistory")
     };
 
+    let currentStage = "plan";
+    let stageSnapshots = [];
+    let selectedExampleStory = "missingKey";
+    let selectedExampleStage = "plan";
+
     function currentData() { return typeData[els.essayType.value]; }
+    function isLetterType(value = els.essayType.value) { return value === "formalLetter" || value === "informalLetter"; }
     function sample(items, count) { return [...items].sort(() => Math.random() - 0.5).slice(0, count); }
     function unique(items) { return [...new Set(items)]; }
-
-    function titleText() {
-      return els.essayTitle.value.trim() || currentData().titles[0];
-    }
-
+    function clampScore(score) { return Math.max(0, Math.min(5, Math.round(score))); }
+    function escapeHtml(text) { return text.replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char])); }
+    function escapeRegExp(text) { return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+    function titleText() { return els.essayTitle.value.trim() || currentData().titles[0]; }
     function titleTheme() {
       const title = titleText().toLowerCase();
-      return titleThemes.find(theme => theme.keywords.some(keyword => title.includes(keyword))) || {
-        name: "general essay topic",
-        words: ["clear", "vivid", "memorable", "bright", "quiet", "careful", "detailed", "striking"],
-        phrases: ["The idea stood out like a bright mark on a page.", "The moment unfolded like a scene in a film.", "The details gathered like pieces of a picture.", "The topic opened like a path for the reader."]
-      };
+      return titleThemes.find(theme => theme.keywords.some(keyword => title.includes(keyword))) || { name: "general essay topic", words: ["clear", "vivid", "memorable", "bright", "quiet", "careful", "detailed", "striking"], phrases: ["The idea stood out like a bright mark on a page.", "The moment unfolded like a scene in a film.", "The details gathered like pieces of a picture.", "The topic opened like a path for the reader."] };
     }
 
-    function bankContextText() {
-      return `Title lens: ${titleText()} - showing sensory words and figurative phrases for ${titleTheme().name}.`;
+    function figurativeOptions(category) {
+      if (category === "Figurative language") return [...titleTheme().phrases, ...Object.values(figurativeBank).flat()];
+      return figurativeBank[category] || [];
     }
 
-    function clampScore(score) {
-      return Math.max(0, Math.min(5, Math.round(score)));
-    }
-
-    function textProfile() {
-      const text = els.draft.value.trim();
+    function figurativeFeatureCounts(text) {
       const lower = text.toLowerCase();
-      const words = text ? text.split(/\s+/).filter(Boolean) : [];
-      const sentences = text ? text.split(/[.!?]+/).filter(part => part.trim().length > 0) : [];
-      const paragraphs = text ? text.split(/\n\s*\n/).filter(part => part.trim().length > 0) : [];
-      const sensoryWords = unique([...titleTheme().words, ...wordBank.filter(([kind]) => kind === "sensory").map(([, word]) => word)]);
-      const transitions = ["first", "next", "then", "after", "before", "finally", "however", "therefore", "because", "meanwhile", "suddenly", "in conclusion", "as a result"];
-      const formalWords = ["incident", "occurred", "reported", "witnessed", "concluded", "recommend", "persons involved", "action taken"];
-      const sensoryHits = sensoryWords.filter(word => lower.includes(word.toLowerCase())).length;
-      const figurativeHits = (lower.match(/\blike a\b|\blike an\b|\bas [a-z]+ as\b|\b[a-z]+ed like\b|\b[a-z]+ing like\b/g) || []).length;
-      const transitionHits = transitions.filter(word => lower.includes(word)).length;
-      const formalHits = formalWords.filter(word => lower.includes(word)).length;
-      const completeSentenceRatio = sentences.length ? sentences.filter(sentence => sentence.trim().split(/\s+/).length >= 4).length / sentences.length : 0;
-      const longSentences = sentences.filter(sentence => sentence.trim().split(/\s+/).length > 35).length;
-      const startsLowercase = sentences.filter(sentence => /^[a-z]/.test(sentence.trim())).length;
-      const missingEndPunctuation = text && !/[.!?"]$/.test(text);
-      return {
-        text, lower, words, wordCount: words.length, sentences, sentenceCount: sentences.length, paragraphs,
-        paragraphCount: paragraphs.length, sensoryHits, figurativeHits, transitionHits, formalHits,
-        hasDialogue: /["“”]/.test(text),
-        hasDate: /\b\d{1,2}[/-]\d{1,2}|\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|may|june|july|august|september|october|november|december)\b/i.test(text),
-        hasTime: /\b\d{1,2}:\d{2}\b|\b(a\.m\.|p\.m\.|morning|afternoon|evening|lunchtime)\b/i.test(text),
-        hasPlace: /\b(school|yard|classroom|home|street|market|field|hall|office|beach|park|room|building)\b/i.test(text),
-        completeSentenceRatio, longSentences, startsLowercase, missingEndPunctuation
-      };
-    }
-
-    function markDraft() {
-      const profile = textProfile();
-      if (!profile.wordCount) {
-        return {
-          content: { score: 0, note: "No draft text found yet." },
-          language: { score: 0, note: "No language features can be checked until a draft is written." },
-          organisation: { score: 0, note: "No paragraphing or sequencing can be checked yet." },
-          grammar: { score: 0, note: "No sentences can be checked yet." }
-        };
-      }
-
-      const lengthScore = profile.wordCount >= 250 ? 2 : profile.wordCount >= 150 ? 1.5 : profile.wordCount >= 80 ? 1 : profile.wordCount >= 35 ? 0.5 : 0;
-      let content = lengthScore;
-      let language = Math.min(2, profile.sensoryHits * 0.45) + Math.min(1.5, profile.figurativeHits * 0.75);
-      let organisation = Math.min(2, profile.paragraphCount * 0.55) + Math.min(2, profile.transitionHits * 0.45);
-      let grammar = profile.completeSentenceRatio * 3.2 + (profile.sentenceCount >= 4 ? 0.8 : 0) - Math.min(1.4, profile.longSentences * 0.45) - Math.min(1.2, profile.startsLowercase * 0.4) - (profile.missingEndPunctuation ? 0.5 : 0);
-      const notes = {
-        content: [],
-        language: [],
-        organisation: [],
-        grammar: []
-      };
-
-      if (els.essayType.value === "narrative") {
-        const plotHits = ["problem", "suddenly", "realised", "felt", "finally", "from that day", "ended"].filter(word => profile.lower.includes(word)).length;
-        content += (profile.hasPlace ? 0.7 : 0) + (profile.hasDialogue ? 0.7 : 0) + Math.min(1.6, plotHits * 0.4);
-        notes.content.push(profile.hasPlace ? "A setting is suggested." : "Add a clear time and place.");
-        notes.content.push(profile.hasDialogue ? "Dialogue is present." : "Add dialogue or action to develop characters.");
-        notes.content.push(plotHits >= 3 ? "The plot shows movement." : "Make the problem, climax, and ending clearer.");
-      } else if (els.essayType.value === "report") {
-        content += (profile.hasDate ? 0.8 : 0) + (profile.hasTime ? 0.8 : 0) + (profile.hasPlace ? 0.8 : 0) + Math.min(1.2, profile.formalHits * 0.3);
-        language += Math.min(1.5, profile.formalHits * 0.35) - Math.min(1, profile.figurativeHits * 0.4);
-        notes.content.push(profile.hasDate && profile.hasTime && profile.hasPlace ? "Date, time, and place are included." : "Include date, time, and place early.");
-        notes.language.push(profile.formalHits ? "Some formal report language is present." : "Use formal report words such as occurred, reported, witnessed, or action taken.");
-        notes.language.push(profile.figurativeHits ? "Reports should avoid figurative language unless it is part of quoted speech." : "Tone appears factual.");
-      } else if (els.essayType.value === "persuasive") {
-        const persuasionHits = ["should", "must", "believe", "because", "reason", "therefore", "for example", "benefit"].filter(word => profile.lower.includes(word)).length;
-        content += Math.min(3, persuasionHits * 0.55);
-        language += Math.min(1.5, persuasionHits * 0.25);
-        notes.content.push(persuasionHits >= 3 ? "The draft shows a position with reasons." : "State your opinion and add reasons with examples.");
-      } else if (els.essayType.value === "expository") {
-        const explainHits = ["explain", "because", "first", "next", "for example", "means", "therefore", "in summary"].filter(word => profile.lower.includes(word)).length;
-        content += Math.min(3, explainHits * 0.5);
-        notes.content.push(explainHits >= 3 ? "The draft includes explanatory signals." : "Add facts, steps, examples, or reasons.");
-      } else {
-        content += Math.min(2.5, profile.sensoryHits * 0.35) + (profile.hasPlace ? 0.5 : 0);
-        notes.content.push(profile.sensoryHits >= 4 ? "Details help develop the description." : "Add more sight, sound, smell, touch, or taste details.");
-      }
-
-      notes.language.push(profile.sensoryHits ? `${profile.sensoryHits} sensory word match(es) found.` : "Add sensory details from the word bank.");
-      notes.language.push(profile.figurativeHits ? `${profile.figurativeHits} figurative language pattern(s) found.` : "Add a simile or metaphor where it suits the form.");
-      notes.organisation.push(profile.paragraphCount >= 3 ? "Paragraphing is developing." : "Use separate paragraphs for separate ideas or events.");
-      notes.organisation.push(profile.transitionHits ? `${profile.transitionHits} transition signal(s) found.` : "Add transitions to guide the reader.");
-      notes.grammar.push(profile.completeSentenceRatio > 0.8 ? "Most sentences look complete." : "Check for fragments and very short incomplete sentences.");
-      notes.grammar.push(profile.longSentences ? "Some long sentences may need splitting." : "Sentence length looks controlled.");
-      notes.grammar.push(profile.startsLowercase || profile.missingEndPunctuation ? "Check capital letters and end punctuation." : "Capitalisation and end punctuation look mostly controlled.");
-
-      return {
-        content: { score: clampScore(content), note: notes.content.join(" ") },
-        language: { score: clampScore(language), note: notes.language.join(" ") },
-        organisation: { score: clampScore(organisation), note: notes.organisation.join(" ") },
-        grammar: { score: clampScore(grammar), note: notes.grammar.join(" ") }
-      };
+      const similes = (lower.match(/\blike a\b|\blike an\b|\bas [a-z]+ as\b|\b[a-z]+ed like\b|\b[a-z]+ing like\b/g) || []).length;
+      const onomatopoeia = (lower.match(/\b(bang|boom|buzz|crash|creak|drip|pop|slam|snap|splash|thud|tick|whoosh|whisper|zoom)\b/g) || []).length;
+      const personification = (lower.match(/\b(wind|sun|rain|trees|shadows|clouds|door|gate|sea|river|night)\s+(whispered|smiled|groaned|crept|danced|sighed|roared|laughed|swallowed|watched)\b/g) || []).length;
+      const metaphors = (lower.match(/\b(was|were|is|are)\s+(a|an|the)\s+(stone|lamp|river|furnace|storm|blanket|cage|mountain|ocean|fire)\b/g) || []).length;
+      const hyperbole = (lower.match(/\b(thousand years|million|weighed a ton|whole world|whole village|eat the table|forever)\b/g) || []).length;
+      const alliteration = (lower.match(/\b([a-z])\w*\s+\1\w+\s+\1\w+/g) || []).length;
+      return { similes, metaphors, personification, onomatopoeia, alliteration, hyperbole, total: similes + metaphors + personification + onomatopoeia + alliteration + hyperbole };
     }
 
     function toast(message) {
@@ -989,47 +1006,102 @@
     }
 
     function readSavedState() {
-      try {
-        return JSON.parse(localStorage.getItem(stateKey) || "{}");
-      } catch (error) {
-        return {};
-      }
+      try { return JSON.parse(localStorage.getItem(stateKey) || "{}"); } catch { return {}; }
     }
 
     function writeSavedState(nextState) {
+      try { localStorage.setItem(stateKey, JSON.stringify(nextState)); } catch { els.saveStatus.textContent = "Ready"; }
+    }
+
+    function readExampleEdits() {
       try {
-        localStorage.setItem(stateKey, JSON.stringify(nextState));
-      } catch (error) {
-        els.saveStatus.textContent = "Ready";
+        const edits = JSON.parse(localStorage.getItem(exampleStoriesKey) || "{}");
+        return edits && typeof edits === "object" ? edits : {};
+      } catch { return {}; }
+    }
+
+    function writeExampleEdits(edits) {
+      try {
+        localStorage.setItem(exampleStoriesKey, JSON.stringify(edits));
+        return true;
+      } catch {
+        toast("Example changes could not be saved");
+        return false;
       }
+    }
+
+    function exampleStageText(storyKey = selectedExampleStory, stage = selectedExampleStage) {
+      const edits = readExampleEdits();
+      return edits[storyKey]?.[stage] ?? editableStories[storyKey].stages[stage].text;
+    }
+
+    function stageLabel(stage) {
+      return processStages.find(([key]) => key === stage)?.[1] || "Plan";
+    }
+
+    function outlineValues() {
+      return [...document.querySelectorAll(".outline-item input")].map(input => input.value);
+    }
+
+    function readDrafts() {
+      try {
+        const drafts = JSON.parse(localStorage.getItem(draftsKey) || "[]");
+        return Array.isArray(drafts) ? drafts : [];
+      } catch { return []; }
+    }
+
+    function writeDrafts(drafts) {
+      try {
+        localStorage.setItem(draftsKey, JSON.stringify(drafts));
+        return true;
+      } catch {
+        toast("Drafts could not be saved in this browser");
+        return false;
+      }
+    }
+
+    function currentDraftSnapshot(name = "") {
+      return {
+        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        name: name.trim() || els.essayTitle.value.trim() || `${currentData().label} draft`,
+        type: els.essayType.value,
+        typeLabel: currentData().label,
+        title: els.essayTitle.value,
+        draft: els.draft.value,
+        outline: outlineValues(),
+        process: stageSnapshots,
+        savedAt: new Date().toISOString()
+      };
     }
 
     function save() {
-      const outline = [...document.querySelectorAll(".outline-item input")].map(input => input.value);
+      const outline = outlineValues();
       const scores = Object.fromEntries([...document.querySelectorAll(".rubric-score")].map(select => [select.dataset.area, select.value]));
-      const checks = [...document.querySelectorAll(".rubric-check")].map(check => check.checked);
-      writeSavedState({
-        type: els.essayType.value,
-        title: els.essayTitle.value,
-        draft: els.draft.value,
-        outline,
-        scores,
-        checks
-      });
+      writeSavedState({ type: els.essayType.value, title: els.essayTitle.value, draft: els.draft.value, outline, scores, currentStage, stageSnapshots });
       els.saveStatus.textContent = "Saved";
-      window.setTimeout(() => (els.saveStatus.textContent = "Ready"), 900);
+      window.setTimeout(() => els.saveStatus.textContent = "Ready", 800);
     }
 
-    function load() {
-      const saved = readSavedState();
-      els.essayType.value = saved.type || "narrative";
-      els.essayTitle.value = saved.title || "";
-      els.draft.value = saved.draft || "";
-      renderAll(saved.outline, saved.scores, saved.checks);
-      updateStats();
-      if (els.draft.value.trim()) {
-        applyAutomaticMarks();
-      }
+    function countText(text) {
+      text = text.trim();
+      const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+      const sentences = text ? text.split(/[.!?]+/).filter(part => part.trim()).length : 0;
+      return { words, sentences };
+    }
+
+    function selectedDraftText() {
+      const start = els.draft.selectionStart || 0;
+      const end = els.draft.selectionEnd || 0;
+      return end > start ? els.draft.value.slice(start, end) : "";
+    }
+
+    function updateStats() {
+      const selected = selectedDraftText();
+      const counts = countText(selected || els.draft.value);
+      els.wordCount.textContent = counts.words;
+      els.sentenceCount.textContent = counts.sentences;
+      els.wordCountLabel.textContent = selected ? "Selected words" : "Words";
+      els.sentenceCountLabel.textContent = selected ? "Selected sentences" : "Sentences";
     }
 
     function insertText(text) {
@@ -1038,21 +1110,223 @@
       const before = els.draft.value.slice(0, start);
       const after = els.draft.value.slice(end);
       const spacer = before && !before.endsWith(" ") && !before.endsWith("\n") ? " " : "";
-      const nextText = `${spacer}${text}`;
-      els.draft.value = before + nextText + after;
+      els.draft.value = before + spacer + text + after;
       els.draft.focus();
-      const cursor = before.length + nextText.length;
-      els.draft.setSelectionRange(cursor, cursor);
+      els.draft.setSelectionRange(before.length + spacer.length + text.length, before.length + spacer.length + text.length);
       updateStats();
+      if (els.liveAutoCheck.checked) applyAutomaticMarks();
       save();
     }
 
-    function updateStats() {
+    function textProfile() {
       const text = els.draft.value.trim();
-      const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
-      const sentences = text ? text.split(/[.!?]+/).filter(part => part.trim().length > 0).length : 0;
-      els.wordCount.textContent = words;
-      els.sentenceCount.textContent = sentences;
+      const lower = text.toLowerCase();
+      const words = text ? text.split(/\s+/).filter(Boolean) : [];
+      const sentences = text ? text.match(/[^.!?]+[.!?]?/g).map(s => s.trim()).filter(Boolean) : [];
+      const paragraphs = text ? text.split(/\n\s*\n/).filter(part => part.trim()) : [];
+      const sensoryWords = unique([...titleTheme().words, ...wordBank.filter(([kind]) => kind.startsWith("sensory")).map(([, word]) => word)]);
+      const transitions = ["first", "next", "then", "after", "before", "finally", "however", "therefore", "because", "meanwhile", "suddenly", "in conclusion", "as a result"];
+      const formalWords = ["incident", "occurred", "reported", "witnessed", "concluded", "recommend", "persons involved", "action taken"];
+      const letterWords = ["dear", "writing to", "request", "complaint", "thank", "invite", "grateful", "consideration", "response", "yours faithfully", "yours sincerely", "kind regards", "your friend", "with love", "best wishes"];
+      const casualWords = ["hi", "hello", "you would not believe", "so much to tell", "with love", "best wishes", "your friend"];
+      const formalToneWords = ["sir or madam", "principal", "request", "complaint", "grateful", "consideration", "response", "yours faithfully", "yours sincerely", "respectfully"];
+      const figurativeFeatures = figurativeFeatureCounts(text);
+      return {
+        text, lower, words, wordCount: words.length, sentences, sentenceCount: sentences.length, paragraphs, paragraphCount: paragraphs.length,
+        sensoryHits: sensoryWords.filter(word => lower.includes(word.toLowerCase())).length,
+        figurativeHits: figurativeFeatures.total,
+        figurativeFeatures,
+        transitionHits: transitions.filter(word => lower.includes(word)).length,
+        formalHits: formalWords.filter(word => lower.includes(word)).length,
+        letterHits: letterWords.filter(word => lower.includes(word)).length,
+        casualLetterHits: casualWords.filter(word => lower.includes(word)).length,
+        formalLetterHits: formalToneWords.filter(word => lower.includes(word)).length,
+        hasDearGreeting: /^dear\s+.+/im.test(text),
+        hasFriendlyGreeting: /^(dear|hi|hello)\s+.+/im.test(text),
+        hasGreeting: /^(dear|hi|hello)\s+.+/im.test(text),
+        hasLetterPurpose: /\b(i am writing|i'm writing|reason for this letter|would like to|request|complaint|thank|invite|invitation|bring to your attention)\b/i.test(text),
+        hasFormalClosing: /\b(yours faithfully|yours sincerely|respectfully)\b/i.test(text),
+        hasInformalClosing: /\b(your friend|with love|best wishes|kind regards|regards)\b/i.test(text),
+        hasLetterClosing: /\b(yours faithfully|yours sincerely|respectfully|your friend|with love|best wishes|kind regards|sincerely|faithfully|regards)\b/i.test(text),
+        hasSignature: /\b(yours faithfully|yours sincerely|respectfully|your friend|with love|best wishes|kind regards|sincerely|faithfully|regards),?\s*\n+\s*[A-Z][a-z]+/m.test(text),
+        hasDialogue: /["“”]/.test(text),
+        hasDate: /\b\d{1,2}[/-]\d{1,2}|\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|may|june|july|august|september|october|november|december)\b/i.test(text),
+        hasTime: /\b\d{1,2}:\d{2}\b|\b(a\.m\.|p\.m\.|morning|afternoon|evening|lunchtime)\b/i.test(text),
+        hasPlace: /\b(school|yard|classroom|home|street|market|field|hall|office|beach|park|room|building)\b/i.test(text)
+      };
+    }
+
+    function findIssues(profile) {
+      const issues = [];
+      const add = (area, title, snippet, recommendation, pattern) => issues.push({ area, title, snippet, recommendation, pattern });
+
+      if (!profile.text) return issues;
+
+      profile.sentences.forEach(sentence => {
+        const words = sentence.split(/\s+/).filter(Boolean);
+        if (words.length > 35) add("grammar", "Long sentence", sentence.slice(0, 120), "Split this into two shorter sentences so the reader can follow the idea.", sentence);
+        if (/^[a-z]/.test(sentence)) add("grammar", "Capital letter needed", sentence.slice(0, 80), "Start each sentence with a capital letter.", sentence.slice(0, Math.min(sentence.length, 80)));
+        if (words.length < 4 && !/[.!?]$/.test(sentence)) add("grammar", "Possible fragment", sentence.slice(0, 80), "Check whether this is a complete sentence with a subject and verb.", sentence);
+      });
+
+      if (profile.text && !/[.!?"]$/.test(profile.text)) add("grammar", "End punctuation missing", profile.text.slice(-80), "Add a full stop, question mark, or exclamation mark at the end.", profile.text.slice(-50));
+      if (/\b(i)\b/.test(profile.text)) add("grammar", "Capitalise I", "i", "Use capital I when referring to yourself.", /\bi\b/g);
+      Object.entries(spellingCorrections).slice(0).forEach(([wrong, correction]) => {
+        const pattern = new RegExp(`\\b${escapeRegExp(wrong)}\\b`, "gi");
+        if (pattern.test(profile.text)) add("grammar", "Possible spelling error", wrong, `Check spelling: ${wrong} is usually written as ${correction}.`, new RegExp(`\\b${escapeRegExp(wrong)}\\b`, "gi"));
+      });
+      if (/\b(was|were)\s+\w+ing\b/i.test(profile.text)) add("grammar", "Check verb agreement", profile.text.match(/\b(was|were)\s+\w+ing\b/i)?.[0] || "", "Check that the helping verb agrees with the subject.", /\b(was|were)\s+\w+ing\b/gi);
+      if (profile.paragraphCount < 2 && profile.wordCount > 80) add("organisation", "Needs paragraphing", profile.text.slice(0, 120), "Break the draft into paragraphs when a new idea, event, speaker, or part begins.", profile.text.slice(0, 100));
+      if (profile.transitionHits < 2 && profile.wordCount > 80) add("organisation", "Few transitions", "", "Add transitions such as first, then, after that, however, finally, or in conclusion.", null);
+      if (profile.sensoryHits < 2 && els.essayType.value !== "report" && !isLetterType()) add("language", "More sensory detail needed", "", "Add words that show sight, sound, touch, smell, or taste.", null);
+      if (profile.figurativeHits < 1 && ["narrative", "descriptive"].includes(els.essayType.value)) add("language", "Add figurative language", "", "Try a simile, metaphor, personification, onomatopoeia, alliteration, hyperbole, or strong imagery that fits the title.", null);
+      if (els.essayType.value === "report") {
+        if (!profile.hasDate || !profile.hasTime || !profile.hasPlace) add("content", "Missing report details", "", "Reports should include date, time, and place near the beginning.", null);
+        if (profile.figurativeHits > 0) add("language", "Report tone", "", "Reports should usually avoid figurative language and use a formal, factual tone.", null);
+      }
+      if (isLetterType()) {
+        if (els.essayType.value === "formalLetter" && !profile.hasDearGreeting) add("organisation", "Formal greeting missing", "", "Begin a formal letter with a suitable greeting such as Dear Principal, Dear Sir or Madam, or a named title.", null);
+        if (els.essayType.value === "informalLetter" && !profile.hasFriendlyGreeting) add("organisation", "Friendly greeting missing", "", "Begin an informal letter with a warm greeting such as Dear Friend, Dear Cousin, Hi Maya, or Hello Anna.", null);
+        if (!profile.hasDate) add("organisation", "Date missing", "", "Add the date near the top of the letter, below the address.", null);
+        if (!profile.hasLetterPurpose) add("content", "Purpose unclear", "", "State why you are writing near the beginning of the letter.", null);
+        if (els.essayType.value === "formalLetter" && !profile.hasFormalClosing) add("organisation", "Formal closing missing", "", "End with a formal closing such as Yours faithfully, Yours sincerely, or Respectfully.", null);
+        if (els.essayType.value === "informalLetter" && !profile.hasInformalClosing) add("organisation", "Friendly closing missing", "", "End with a friendly closing such as Your friend, With love, or Best wishes.", null);
+        if (!profile.hasSignature) add("organisation", "Signature missing", "", "Write your name after the closing so the reader knows who sent the letter.", null);
+      }
+      if (els.essayType.value === "narrative" && !profile.hasDialogue) add("content", "Character development", "", "Add dialogue or action to reveal what a character feels or wants.", null);
+      return issues.slice(0, 12);
+    }
+
+    function markDraft() {
+      const profile = textProfile();
+      const issues = findIssues(profile);
+      if (!profile.wordCount) return { marks: { content: [0, "No draft text found yet."], language: [0, "No language features can be checked until a draft is written."], organisation: [0, "No paragraphing or sequencing can be checked yet."], grammar: [0, "No sentences can be checked yet."] }, issues };
+
+      let content = profile.wordCount >= 250 ? 2 : profile.wordCount >= 150 ? 1.5 : profile.wordCount >= 80 ? 1 : 0.5;
+      let language = Math.min(2, profile.sensoryHits * 0.45) + Math.min(1.5, profile.figurativeHits * 0.75);
+      let organisation = Math.min(2, profile.paragraphCount * 0.55) + Math.min(2, profile.transitionHits * 0.45);
+      let grammar = 4.2 - Math.min(3.2, issues.filter(issue => issue.area === "grammar").length * 0.55);
+
+      const notes = { content: [], language: [], organisation: [], grammar: [] };
+      if (els.essayType.value === "narrative") {
+        const plotHits = ["problem", "suddenly", "realised", "felt", "finally", "from that day", "ended"].filter(word => profile.lower.includes(word)).length;
+        content += (profile.hasPlace ? 0.7 : 0) + (profile.hasDialogue ? 0.7 : 0) + Math.min(1.6, plotHits * 0.4);
+        notes.content.push(profile.hasPlace ? "A setting is suggested." : "Add a clear time and place.");
+        notes.content.push(profile.hasDialogue ? "Dialogue is present." : "Add dialogue or action to develop characters.");
+      } else if (els.essayType.value === "report") {
+        content += (profile.hasDate ? 0.8 : 0) + (profile.hasTime ? 0.8 : 0) + (profile.hasPlace ? 0.8 : 0) + Math.min(1.2, profile.formalHits * 0.3);
+        language += Math.min(1.5, profile.formalHits * 0.35) - Math.min(1, profile.figurativeHits * 0.4);
+        notes.content.push(profile.hasDate && profile.hasTime && profile.hasPlace ? "Date, time, and place are included." : "Include date, time, and place early.");
+      } else if (isLetterType()) {
+        const hasExpectedGreeting = els.essayType.value === "formalLetter" ? profile.hasDearGreeting : profile.hasFriendlyGreeting;
+        const hasExpectedClosing = els.essayType.value === "formalLetter" ? profile.hasFormalClosing : profile.hasInformalClosing;
+        const toneHits = els.essayType.value === "formalLetter" ? profile.formalLetterHits : profile.casualLetterHits;
+        const formatHits = [profile.hasDate, hasExpectedGreeting, profile.hasLetterPurpose, hasExpectedClosing, profile.hasSignature].filter(Boolean).length;
+        content += (profile.hasLetterPurpose ? 1.2 : 0) + Math.min(1.6, profile.letterHits * 0.3);
+        language += Math.min(1.7, toneHits * 0.35);
+        organisation += Math.min(2.2, formatHits * 0.45);
+        notes.content.push(profile.hasLetterPurpose ? "The purpose of the letter is clear." : "State the purpose of the letter near the beginning.");
+        notes.language.push(toneHits ? `${toneHits} suitable tone marker(s) found for this letter type.` : els.essayType.value === "formalLetter" ? "Use formal phrases such as I am writing to, I would be grateful if, or Thank you for your consideration." : "Use friendly phrases such as I hope you are well, I have so much to tell you, or Best wishes.");
+        notes.organisation.push(formatHits >= 4 ? "Most key letter parts are present." : "Check for address, date, suitable greeting, purpose, suitable closing, and signature.");
+      } else if (els.essayType.value === "persuasive") {
+        const hits = ["should", "must", "believe", "because", "reason", "therefore", "for example", "benefit"].filter(word => profile.lower.includes(word)).length;
+        content += Math.min(3, hits * 0.55);
+        language += Math.min(1.5, hits * 0.25);
+        notes.content.push(hits >= 3 ? "The draft shows a position with reasons." : "State your opinion and add reasons with examples.");
+      } else if (els.essayType.value === "expository") {
+        const hits = ["explain", "because", "first", "next", "for example", "means", "therefore", "in summary"].filter(word => profile.lower.includes(word)).length;
+        content += Math.min(3, hits * 0.5);
+        notes.content.push(hits >= 3 ? "The draft includes explanatory signals." : "Add facts, steps, examples, or reasons.");
+      } else {
+        content += Math.min(2.5, profile.sensoryHits * 0.35) + (profile.hasPlace ? 0.5 : 0);
+        notes.content.push(profile.sensoryHits >= 4 ? "Details help develop the description." : "Add more sensory details.");
+      }
+
+      notes.language.push(profile.sensoryHits ? `${profile.sensoryHits} sensory word match(es) found.` : "Add sensory details from the word bank.");
+      const featureSummary = Object.entries(profile.figurativeFeatures)
+        .filter(([key, value]) => key !== "total" && value > 0)
+        .map(([key, value]) => `${value} ${key}`)
+        .join(", ");
+      notes.language.push(profile.figurativeHits ? `${profile.figurativeHits} figurative language feature(s) found: ${featureSummary}.` : "Add figurative language such as a simile, metaphor, personification, onomatopoeia, alliteration, hyperbole, or imagery where it suits the form.");
+      notes.organisation.push(profile.paragraphCount >= 3 ? "Paragraphing is developing." : "Use separate paragraphs for separate ideas or events.");
+      notes.organisation.push(profile.transitionHits ? `${profile.transitionHits} transition signal(s) found.` : "Add transitions to guide the reader.");
+      notes.grammar.push(issues.filter(issue => issue.area === "grammar").length ? "Some spelling, sentence, or mechanics issues were flagged." : "No major spelling or sentence-level issues were flagged by this checker.");
+
+      return { marks: {
+        content: [clampScore(content), notes.content.join(" ")],
+        language: [clampScore(language), notes.language.join(" ")],
+        organisation: [clampScore(organisation), notes.organisation.join(" ")],
+        grammar: [clampScore(grammar), notes.grammar.join(" ")]
+      }, issues };
+    }
+
+    function highlightedHtml(text, issues) {
+      if (!text.trim()) return "Write or paste a draft, then click Mark Draft.";
+      const ranges = [];
+      issues.forEach(issue => {
+        if (!issue.pattern) return;
+        if (issue.pattern instanceof RegExp) {
+          let match;
+          while ((match = issue.pattern.exec(text)) && ranges.length < 30) ranges.push({ start: match.index, end: match.index + match[0].length, area: issue.area });
+          issue.pattern.lastIndex = 0;
+        } else {
+          const snippet = String(issue.pattern);
+          const index = text.indexOf(snippet);
+          if (index >= 0) ranges.push({ start: index, end: index + snippet.length, area: issue.area });
+        }
+      });
+      ranges.sort((a, b) => a.start - b.start);
+      const clean = [];
+      let lastEnd = -1;
+      ranges.forEach(range => {
+        if (range.start >= lastEnd) {
+          clean.push(range);
+          lastEnd = range.end;
+        }
+      });
+      let html = "";
+      let cursor = 0;
+      clean.forEach(range => {
+        html += escapeHtml(text.slice(cursor, range.start));
+        html += `<mark class="${range.area}">${escapeHtml(text.slice(range.start, range.end))}</mark>`;
+        cursor = range.end;
+      });
+      html += escapeHtml(text.slice(cursor));
+      return html;
+    }
+
+    function renderIssues(issues) {
+      els.issueList.innerHTML = "";
+      els.recommendationCount.textContent = String(issues.length);
+      els.issueCount.textContent = `${issues.length} issue${issues.length === 1 ? "" : "s"}`;
+      if (!issues.length) {
+        els.issueList.innerHTML = `<div class="issue-card"><strong>No major issues flagged</strong><span>The checker did not find obvious issues. Read the rubric explanations and revise for stronger detail and clarity.</span></div>`;
+        return;
+      }
+      issues.forEach(issue => {
+        const card = document.createElement("div");
+        card.className = "issue-card";
+        card.dataset.area = issue.area;
+        card.innerHTML = `<strong>${issue.title}</strong><span>${issue.recommendation}${issue.snippet ? ` Review: "${escapeHtml(issue.snippet)}"` : ""}</span>`;
+        els.issueList.appendChild(card);
+      });
+    }
+
+    function applyAutomaticMarks(showToast = false) {
+      const result = markDraft();
+      Object.entries(result.marks).forEach(([area, [score, note]]) => {
+        const select = document.querySelector(`.rubric-score[data-area="${area}"]`);
+        const auto = document.querySelector(`[data-auto-note="${area}"]`);
+        if (select) select.value = String(score);
+        if (auto) auto.textContent = `Automatic check: ${note}`;
+      });
+      updateRubricTotal();
+      renderIssues(result.issues);
+      els.highlightedDraft.innerHTML = highlightedHtml(els.draft.value, result.issues);
+      els.autoSummary.textContent = els.draft.value.trim()
+        ? `Automatic self-check updated from the current ${currentData().label.toLowerCase()} draft. Review the highlighted draft and recommendations, then adjust marks if needed.`
+        : "Write or paste a draft, then use Mark Draft for an estimated self-check.";
+      if (showToast) toast("Draft marked");
     }
 
     function renderTitles() {
@@ -1086,31 +1360,282 @@
       });
     }
 
+    function renderExcerpts() {
+      els.excerptList.innerHTML = "";
+      sample(sampleExcerpts[els.essayType.value] || [], 2).forEach(item => {
+        const card = document.createElement("div");
+        card.className = "prompt-card";
+        card.innerHTML = `<strong>${item.title}</strong><span>${item.excerpt}</span><small>${item.focus}</small><button class="mini" type="button">+</button>`;
+        card.querySelector("button").addEventListener("click", () => insertText(`Sample excerpt - ${item.title}:\n${item.excerpt}\n\nGuided focus: ${item.focus}\n\n`));
+        els.excerptList.appendChild(card);
+      });
+    }
+
+    function renderExampleWorkshop() {
+      const previousStory = selectedExampleStory;
+      els.exampleStorySelect.innerHTML = "";
+      Object.entries(editableStories).forEach(([key, story]) => {
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = story.title;
+        els.exampleStorySelect.appendChild(option);
+      });
+      els.exampleStorySelect.value = editableStories[previousStory] ? previousStory : Object.keys(editableStories)[0];
+      selectedExampleStory = els.exampleStorySelect.value;
+
+      els.exampleStageTabs.innerHTML = "";
+      processStages.forEach(([stage, label]) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `example-stage-button${stage === selectedExampleStage ? " active" : ""}`;
+        button.dataset.exampleStage = stage;
+        button.textContent = label;
+        button.addEventListener("click", () => {
+          selectedExampleStage = stage;
+          renderExampleWorkshop();
+        });
+        els.exampleStageTabs.appendChild(button);
+      });
+
+      const stageData = editableStories[selectedExampleStory].stages[selectedExampleStage];
+      els.exampleStoryEditor.value = exampleStageText();
+      els.exampleGuidance.textContent = stageData.guidance;
+      els.exampleStageStatus.textContent = stageLabel(selectedExampleStage);
+      els.exampleSaveStatus.textContent = `${editableStories[selectedExampleStory].title}: edit the ${stageLabel(selectedExampleStage).toLowerCase()} version, then save it.`;
+    }
+
+    function saveExampleStage() {
+      const edits = readExampleEdits();
+      edits[selectedExampleStory] ||= {};
+      edits[selectedExampleStory][selectedExampleStage] = els.exampleStoryEditor.value;
+      if (!writeExampleEdits(edits)) return;
+      els.exampleSaveStatus.textContent = `${stageLabel(selectedExampleStage)} changes saved in this browser.`;
+      toast("Example stage saved");
+    }
+
+    function resetExampleStage() {
+      const edits = readExampleEdits();
+      if (edits[selectedExampleStory]) {
+        delete edits[selectedExampleStory][selectedExampleStage];
+        if (!Object.keys(edits[selectedExampleStory]).length) delete edits[selectedExampleStory];
+      }
+      if (!writeExampleEdits(edits)) return;
+      els.exampleStoryEditor.value = editableStories[selectedExampleStory].stages[selectedExampleStage].text;
+      els.exampleSaveStatus.textContent = `${stageLabel(selectedExampleStage)} restored to the original example.`;
+      toast("Example stage reset");
+    }
+
+    function loadExampleIntoDraft() {
+      if (els.draft.value.trim() && !window.confirm("Open this example in the main draft? Your current active draft will be replaced.")) return;
+      saveExampleStage();
+      const story = editableStories[selectedExampleStory];
+      const selectedIndex = processStages.findIndex(([stage]) => stage === selectedExampleStage);
+      const baseTime = Date.now() - Math.max(0, selectedIndex) * 60000;
+      stageSnapshots = processStages.slice(0, selectedIndex + 1).map(([stage, label], index) => {
+        const text = exampleStageText(selectedExampleStory, stage);
+        const counts = countText(text);
+        return {
+          id: `example-${selectedExampleStory}-${stage}-${Date.now()}`,
+          stage,
+          stageLabel: label,
+          type: "narrative",
+          title: story.title,
+          draft: text,
+          outline: stage === "plan" ? text.split("\n").filter(Boolean) : [],
+          wordCount: counts.words,
+          sentenceCount: counts.sentences,
+          savedAt: new Date(baseTime + index * 60000).toISOString()
+        };
+      });
+      currentStage = selectedExampleStage;
+      els.essayType.value = "narrative";
+      els.essayTitle.value = story.title;
+      els.draft.value = els.exampleStoryEditor.value;
+      renderAll(stageSnapshots[0]?.outline || []);
+      updateStats();
+      applyAutomaticMarks();
+      save();
+      toast(`${stageLabel(selectedExampleStage)} example opened`);
+      els.draft.focus();
+    }
+
+    function renderDrafts() {
+      const drafts = readDrafts().sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+      els.draftCount.textContent = String(drafts.length);
+      els.draftList.innerHTML = "";
+      if (!drafts.length) {
+        els.draftList.innerHTML = `<div class="issue-card"><strong>No saved drafts yet</strong><span>Use Save Draft to keep a named copy of the current writing. The app still auto-saves the active draft separately.</span></div>`;
+        return;
+      }
+      drafts.forEach(draftItem => {
+        const card = document.createElement("div");
+        card.className = "prompt-card";
+        const savedDate = new Date(draftItem.savedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+        const wordTotal = countText(draftItem.draft || "").words;
+        card.innerHTML = `<strong>${escapeHtml(draftItem.name)}</strong><span>${escapeHtml(draftItem.typeLabel || "Draft")} - ${wordTotal} words - saved ${savedDate}</span><span>${escapeHtml((draftItem.title || "Untitled").slice(0, 80))}</span><div class="draft-card-actions"><button class="mini" type="button" data-action="open">Open</button><button class="mini" type="button" data-action="replace">Replace</button><button class="mini" type="button" data-action="copy">Copy</button><button class="mini" type="button" data-action="delete">Delete</button></div>`;
+        card.querySelector('[data-action="open"]').addEventListener("click", () => {
+          if (els.draft.value.trim() && !window.confirm("Open this saved draft? The current active draft will be replaced, but saved drafts will remain.")) return;
+          els.essayType.value = typeData[draftItem.type] ? draftItem.type : "narrative";
+          els.essayTitle.value = draftItem.title || "";
+          els.draft.value = draftItem.draft || "";
+          stageSnapshots = Array.isArray(draftItem.process) ? draftItem.process : [];
+          currentStage = stageSnapshots.at(-1)?.stage || "draft";
+          renderAll(draftItem.outline || []);
+          updateStats();
+          applyAutomaticMarks();
+          save();
+          toast("Saved draft opened");
+        });
+        card.querySelector('[data-action="replace"]').addEventListener("click", () => {
+          if (!window.confirm("Replace this saved draft with the current draft?")) return;
+          const updated = readDrafts().map(item => item.id === draftItem.id ? { ...currentDraftSnapshot(draftItem.name), id: draftItem.id } : item);
+          if (!writeDrafts(updated)) return;
+          renderDrafts();
+          toast("Saved draft updated");
+        });
+        card.querySelector('[data-action="copy"]').addEventListener("click", async () => {
+          await navigator.clipboard.writeText(`${draftItem.title ? `${draftItem.title}\n\n` : ""}${draftItem.draft || ""}`);
+          toast("Saved draft copied");
+        });
+        card.querySelector('[data-action="delete"]').addEventListener("click", () => {
+          if (!window.confirm("Delete this saved draft?")) return;
+          if (!writeDrafts(readDrafts().filter(item => item.id !== draftItem.id))) return;
+          renderDrafts();
+          toast("Saved draft deleted");
+        });
+        els.draftList.appendChild(card);
+      });
+    }
+
+    function saveDraftVersion() {
+      if (!els.draft.value.trim()) {
+        toast("Write a draft before saving");
+        return false;
+      }
+      const drafts = readDrafts();
+      drafts.push(currentDraftSnapshot(els.draftSaveName.value));
+      if (!writeDrafts(drafts)) return false;
+      els.draftSaveName.value = "";
+      renderDrafts();
+      document.querySelector('[data-tab="drafts"]').click();
+      toast("Draft saved");
+      return true;
+    }
+
+    function stageSnapshot(stage = currentStage) {
+      const counts = countText(els.draft.value);
+      return {
+        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        stage,
+        stageLabel: stageLabel(stage),
+        type: els.essayType.value,
+        title: els.essayTitle.value,
+        draft: els.draft.value,
+        outline: outlineValues(),
+        wordCount: counts.words,
+        sentenceCount: counts.sentences,
+        savedAt: new Date().toISOString()
+      };
+    }
+
+    function snapshotChange(snapshot, index) {
+      if (!index) return "Starting point for this writing journey.";
+      const previous = stageSnapshots[index - 1];
+      const wordChange = snapshot.wordCount - (previous.wordCount || 0);
+      const sentenceChange = snapshot.sentenceCount - (previous.sentenceCount || 0);
+      const wordText = wordChange >= 0 ? `+${wordChange}` : String(wordChange);
+      const sentenceText = sentenceChange >= 0 ? `+${sentenceChange}` : String(sentenceChange);
+      return `${wordText} words and ${sentenceText} sentences since the previous saved stage.`;
+    }
+
+    function renderWorkflow() {
+      const completedStages = new Set(stageSnapshots.map(snapshot => snapshot.stage));
+      document.querySelectorAll(".process-step").forEach(button => {
+        const stage = button.dataset.stage;
+        button.classList.toggle("active", stage === currentStage);
+        button.classList.toggle("complete", completedStages.has(stage));
+      });
+      els.stageStatus.textContent = `${stageLabel(currentStage)} stage`;
+      els.stageHistory.innerHTML = "";
+      if (!stageSnapshots.length) {
+        els.stageHistory.innerHTML = `<div class="process-history-card"><strong>No saved stages yet</strong><span>Click a writing stage or Save Stage to record how the draft changes.</span></div>`;
+        return;
+      }
+      stageSnapshots.forEach((snapshot, index) => {
+        const card = document.createElement("div");
+        card.className = "process-history-card";
+        const savedDate = new Date(snapshot.savedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+        const preview = (snapshot.draft || snapshot.outline?.filter(Boolean).join(" ") || "No text saved yet.").slice(0, 120);
+        card.innerHTML = `<strong>${snapshot.stageLabel} saved</strong><span>${snapshot.wordCount || 0} words - ${savedDate}</span><span>${snapshotChange(snapshot, index)}</span><span>${escapeHtml(preview)}</span><div class="process-history-actions"><button class="mini" type="button" data-action="restore">Open</button><button class="mini" type="button" data-action="copy">Copy</button></div>`;
+        card.querySelector('[data-action="restore"]').addEventListener("click", () => {
+          if (els.draft.value.trim() && !window.confirm("Open this saved stage? The current active draft will be replaced.")) return;
+          currentStage = snapshot.stage;
+          els.essayType.value = typeData[snapshot.type] ? snapshot.type : els.essayType.value;
+          els.essayTitle.value = snapshot.title || "";
+          els.draft.value = snapshot.draft || "";
+          renderAll(snapshot.outline || []);
+          updateStats();
+          applyAutomaticMarks();
+          save();
+          toast(`${snapshot.stageLabel} stage opened`);
+        });
+        card.querySelector('[data-action="copy"]').addEventListener("click", async () => {
+          await navigator.clipboard.writeText(`${snapshot.title ? `${snapshot.title}\n\n` : ""}${snapshot.draft || ""}`);
+          toast("Stage copied");
+        });
+        els.stageHistory.appendChild(card);
+      });
+    }
+
+    function saveStageSnapshot(stage = currentStage, message = `${stageLabel(stage)} stage saved`) {
+      const next = stageSnapshot(stage);
+      stageSnapshots.push(next);
+      renderWorkflow();
+      save();
+      toast(message);
+      return next;
+    }
+
+    function setProcessStage(stage, options = {}) {
+      currentStage = stage;
+      if (options.capture !== false) saveStageSnapshot(stage, `${stageLabel(stage)} stage saved`);
+      renderWorkflow();
+      if (stage === "plan") {
+        document.querySelector('[data-tab="plan"]').click();
+        document.querySelector("#plan").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      if (stage === "draft") els.draft.focus();
+      if (stage === "revise") {
+        applyAutomaticMarks(true);
+        document.querySelector('[data-tab="rubric"]').click();
+        document.querySelector("#draftReview").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      if (stage === "edit") {
+        applyAutomaticMarks(true);
+        document.querySelector("#draftReview").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
     function renderWords() {
       const category = els.wordCategory.value;
       const query = els.wordSearch.value.trim().toLowerCase();
-      els.wordGrid.innerHTML = "";
-      const context = document.createElement("div");
-      context.className = "bank-context";
-      context.textContent = bankContextText();
-      els.wordGrid.appendChild(context);
       const titleWords = titleTheme().words.map(word => ["sensory", word]);
-      const allWords = [...titleWords, ...wordBank];
       const seen = new Set();
-      allWords
+      els.wordGrid.innerHTML = `<div class="bank-context">Title lens: ${titleText()} - showing sensory words and figurative phrases for ${titleTheme().name}.</div>`;
+      [...titleWords, ...wordBank]
         .filter(([, word]) => {
           const key = word.toLowerCase();
           if (seen.has(key)) return false;
           seen.add(key);
           return true;
         })
-        .filter(([kind]) => category === "all" || kind === category)
+        .filter(([kind]) => category === "all" || kind === category || (category === "sensory" && kind.startsWith("sensory")))
         .filter(([, word]) => !query || word.toLowerCase().includes(query))
         .forEach(([kind, word]) => {
           const button = document.createElement("button");
           button.type = "button";
           button.className = "chip";
-          button.dataset.kind = kind;
+          button.dataset.kind = kind.startsWith("sensory") ? "sensory" : kind === "formal" ? "formal" : "language";
           button.textContent = word;
           button.addEventListener("click", () => insertText(word));
           els.wordGrid.appendChild(button);
@@ -1120,34 +1645,26 @@
     function renderPhraseCategories() {
       const previous = els.phraseCategory.value;
       els.phraseCategory.innerHTML = "";
-      const titleOption = document.createElement("option");
-      titleOption.value = "Figurative language";
-      titleOption.textContent = "Figurative language";
-      els.phraseCategory.appendChild(titleOption);
       Object.keys(phraseBank[els.essayType.value]).forEach(category => {
         const option = document.createElement("option");
         option.value = category;
         option.textContent = category;
         els.phraseCategory.appendChild(option);
       });
-      if ([...els.phraseCategory.options].some(option => option.value === previous)) {
-        els.phraseCategory.value = previous;
-      }
+      if ([...els.phraseCategory.options].some(option => option.value === previous)) els.phraseCategory.value = previous;
     }
 
     function renderPhrases() {
-      const set = els.phraseCategory.value === "Figurative language"
-        ? titleTheme().phrases
-        : phraseBank[els.essayType.value][els.phraseCategory.value] || [];
-      els.phraseList.innerHTML = "";
-      const context = document.createElement("div");
-      context.className = "bank-context";
-      context.textContent = bankContextText();
-      els.phraseList.appendChild(context);
+      const category = els.phraseCategory.value;
+      const set = figurativeOptions(category).length ? figurativeOptions(category) : phraseBank[els.essayType.value][category] || [];
+      const context = figurativeOptions(category).length
+        ? `${category}: phrase ideas for ${titleText()} and related writing.`
+        : `Title lens: ${titleText()} - showing phrase ideas for ${titleTheme().name}.`;
+      els.phraseList.innerHTML = `<div class="bank-context">${context}</div>`;
       set.forEach(phrase => {
         const row = document.createElement("div");
         row.className = "phrase";
-        row.innerHTML = `<p>${phrase}</p><button class="mini" type="button" title="Insert phrase">+</button>`;
+        row.innerHTML = `<p>${phrase}</p><button class="mini" type="button">+</button>`;
         row.querySelector("button").addEventListener("click", () => insertText(phrase));
         els.phraseList.appendChild(row);
       });
@@ -1159,51 +1676,22 @@
       currentData().plan.forEach(([label, placeholder], index) => {
         const item = document.createElement("div");
         item.className = "outline-item";
-        item.innerHTML = `
-          <div class="number">${index + 1}</div>
-          <div>
-            <label>${label}</label>
-            <input value="${values[index] || ""}" placeholder="${placeholder}" aria-label="${label}">
-          </div>
-        `;
+        item.innerHTML = `<div class="number">${index + 1}</div><div><label>${label}</label><input value="${values[index] || ""}" placeholder="${placeholder}" aria-label="${label}"></div>`;
         item.querySelector("input").addEventListener("input", save);
         els.outlineGrid.appendChild(item);
       });
     }
 
-    function renderRubric(scores = {}, checks = []) {
+    function renderRubric(scores = {}) {
       els.rubricGuide.textContent = currentData().rubricGuide;
       els.rubricList.innerHTML = "";
-      const areas = [
-        ["content", "Content", "Are the main ideas and required details fully developed?"],
-        ["language", "Language Use", "Is the language suitable, clear, and effective for this form?"],
-        ["organisation", "Organisation", "Is the writing sequenced, paragraphed, and easy to follow?"],
-        ["grammar", "Grammar and Mechanics", "Are spelling, punctuation, capitalisation, sentence structure, tense, and agreement controlled?"]
-      ];
-      let checkIndex = 0;
+      const areas = [["content", "Content", "Are the main ideas and required details fully developed?"], ["language", "Language Use", "Is the language suitable, clear, and effective for this form?"], ["organisation", "Organisation", "Is the writing sequenced, paragraphed, and easy to follow?"], ["grammar", "Grammar and Mechanics", "Are spelling, punctuation, capitalisation, sentence structure, tense, and agreement controlled?"]];
       areas.forEach(([key, label, help]) => {
+        const checklist = currentData().checklist[key].map(item => `<li><label><input type="checkbox">${item}</label></li>`).join("");
         const card = document.createElement("div");
         card.className = "rubric-card";
-        const checklist = currentData().checklist[key].map(item => {
-          const checked = checks[checkIndex++] ? "checked" : "";
-          return `<li><label><input class="rubric-check" type="checkbox" ${checked}>${item}</label></li>`;
-        }).join("");
-        card.innerHTML = `
-          <header>
-            <div>
-              <h2>${label}</h2>
-              <small>Minimum: 0 mark. Maximum: 5 marks. ${help}</small>
-            </div>
-            <select class="rubric-score" data-area="${key}" aria-label="${label} score">
-              ${achievement.map((level, mark) => `<option value="${mark}" ${String(scores[key] || "0") === String(mark) ? "selected" : ""}>${mark} - ${level}</option>`).join("")}
-            </select>
-          </header>
-          <p class="score-explanation" data-explanation="${key}"></p>
-          <p class="auto-notes" data-auto-note="${key}">The automatic checker will add a reason here after marking the draft.</p>
-          <ul class="checklist">${checklist}</ul>
-        `;
+        card.innerHTML = `<header><div><h2>${label}</h2><small>Minimum: 0 mark. Maximum: 5 marks. ${help}</small></div><select class="rubric-score" data-area="${key}" aria-label="${label} score">${achievement.map((level, mark) => `<option value="${mark}" ${String(scores[key] || "0") === String(mark) ? "selected" : ""}>${mark} - ${level}</option>`).join("")}</select></header><p class="score-explanation" data-explanation="${key}"></p><p class="auto-note" data-auto-note="${key}">The automatic checker will add a reason here after marking the draft.</p><ul class="checklist">${checklist}</ul>`;
         card.querySelector(".rubric-score").addEventListener("change", () => { updateRubricTotal(); save(); });
-        card.querySelectorAll(".rubric-check").forEach(check => check.addEventListener("change", save));
         els.rubricList.appendChild(card);
       });
       updateRubricTotal();
@@ -1213,38 +1701,16 @@
       const total = [...document.querySelectorAll(".rubric-score")].reduce((sum, select) => {
         const mark = Number(select.value);
         const explanation = document.querySelector(`[data-explanation="${select.dataset.area}"]`);
-        if (explanation) {
-          explanation.textContent = `${achievement[mark]} (${mark}/5): ${scoreExplanations[select.dataset.area][mark]}`;
-        }
+        if (explanation) explanation.textContent = `${achievement[mark]} (${mark}/5): ${scoreExplanations[select.dataset.area][mark]}`;
         return sum + mark;
       }, 0);
       els.rubricTotal.textContent = total;
       els.rubricTotalTop.textContent = `${total}/20`;
-      const average = Math.round(total / 4);
-      els.rubricLevel.textContent = achievement[average];
-    }
-
-    function applyAutomaticMarks(showToast = false) {
-      const marks = markDraft();
-      Object.entries(marks).forEach(([area, result]) => {
-        const select = document.querySelector(`.rubric-score[data-area="${area}"]`);
-        const note = document.querySelector(`[data-auto-note="${area}"]`);
-        if (select) select.value = String(result.score);
-        if (note) note.textContent = `Automatic check: ${result.note}`;
-      });
-      updateRubricTotal();
-      els.autoSummary.textContent = els.draft.value.trim()
-        ? `Automatic self-check updated from the current ${currentData().label.toLowerCase()} draft. Review the reasons and adjust any mark if needed.`
-        : "Write or paste a draft, then use Mark Draft for an estimated self-check.";
-      if (showToast) toast("Draft marked");
+      els.rubricLevel.textContent = achievement[Math.round(total / 4)];
     }
 
     function outlineText() {
-      return [...document.querySelectorAll(".outline-item")].map((item, index) => {
-        const label = item.querySelector("label").textContent;
-        const value = item.querySelector("input").value || item.querySelector("input").placeholder;
-        return `${index + 1}. ${label}: ${value}`;
-      }).join("\n");
+      return [...document.querySelectorAll(".outline-item")].map((item, index) => `${index + 1}. ${item.querySelector("label").textContent}: ${item.querySelector("input").value || item.querySelector("input").placeholder}`).join("\n");
     }
 
     function rubricText() {
@@ -1252,23 +1718,37 @@
         const title = card.querySelector("h2").textContent;
         const score = card.querySelector("select").value;
         const explanation = card.querySelector(".score-explanation").textContent;
-        const checked = [...card.querySelectorAll("input[type='checkbox']")]
-          .filter(input => input.checked)
-          .map(input => `- ${input.parentElement.textContent.trim()}`)
-          .join("\n");
-        return `${title}: ${score}/5\n${explanation}${checked ? `\n${checked}` : ""}`;
+        const note = card.querySelector(".auto-note").textContent;
+        return `${title}: ${score}/5\n${explanation}\n${note}`;
       }).join("\n\n");
     }
 
-    function renderAll(outlineValues = [], scores = {}, checks = []) {
+    function renderAll(outlineValues = [], scores = {}) {
       els.modeHelp.textContent = currentData().help;
       renderTitles();
       renderPrompts();
+      renderExcerpts();
+      renderExampleWorkshop();
+      renderDrafts();
       renderWords();
       renderPhraseCategories();
       renderPhrases();
       renderOutline(outlineValues);
-      renderRubric(scores, checks);
+      renderRubric(scores);
+      renderWorkflow();
+    }
+
+    function load() {
+      const saved = readSavedState();
+      const savedType = saved.type === "letter" ? "formalLetter" : saved.type;
+      els.essayType.value = typeData[savedType] ? savedType : "narrative";
+      els.essayTitle.value = saved.title || "";
+      els.draft.value = saved.draft || "";
+      currentStage = processStages.some(([stage]) => stage === saved.currentStage) ? saved.currentStage : "plan";
+      stageSnapshots = Array.isArray(saved.stageSnapshots) ? saved.stageSnapshots : [];
+      renderAll(saved.outline, saved.scores);
+      updateStats();
+      if (els.draft.value.trim()) applyAutomaticMarks();
     }
 
     document.querySelectorAll(".tab").forEach(tab => {
@@ -1280,83 +1760,73 @@
       });
     });
 
-    els.essayType.addEventListener("change", () => {
-      renderAll();
-      save();
-      toast(`${currentData().label} selected`);
-    });
-    els.draft.addEventListener("input", () => {
-      updateStats();
-      if (els.liveAutoCheck.checked) applyAutomaticMarks();
-      save();
-    });
-    els.essayTitle.addEventListener("input", () => {
-      renderWords();
-      renderPhraseCategories();
-      renderPhrases();
-      save();
-    });
+    els.essayType.addEventListener("change", () => { renderAll(); applyAutomaticMarks(); save(); toast(`${currentData().label} selected`); });
+    els.draft.addEventListener("input", () => { updateStats(); if (els.liveAutoCheck.checked) applyAutomaticMarks(); save(); });
+    els.draft.addEventListener("select", updateStats);
+    els.draft.addEventListener("mouseup", updateStats);
+    els.draft.addEventListener("keyup", updateStats);
+    els.draft.addEventListener("blur", () => window.setTimeout(updateStats, 80));
+    els.essayTitle.addEventListener("input", () => { renderWords(); renderPhraseCategories(); renderPhrases(); if (els.liveAutoCheck.checked) applyAutomaticMarks(); save(); });
     els.wordCategory.addEventListener("change", renderWords);
     els.wordSearch.addEventListener("input", renderWords);
     els.phraseCategory.addEventListener("change", renderPhrases);
-
     document.querySelector("#shuffleTitles").addEventListener("click", renderTitles);
     document.querySelector("#shufflePrompts").addEventListener("click", renderPrompts);
-    document.querySelector("#suggestTitle").addEventListener("click", () => {
-      els.essayTitle.value = sample(currentData().titles, 1)[0];
-      renderWords();
-      renderPhraseCategories();
-      renderPhrases();
-      save();
-      toast("Title suggested");
+    document.querySelector("#shuffleExcerpts").addEventListener("click", renderExcerpts);
+    els.exampleStorySelect.addEventListener("change", () => {
+      selectedExampleStory = els.exampleStorySelect.value;
+      selectedExampleStage = "plan";
+      renderExampleWorkshop();
     });
-    document.querySelector("#newPrompt").addEventListener("click", () => {
-      renderPrompts();
-      document.querySelector('[data-tab="prompts"]').click();
-      toast("Prompts refreshed");
+    document.querySelector("#saveExampleStage").addEventListener("click", saveExampleStage);
+    document.querySelector("#resetExampleStage").addEventListener("click", resetExampleStage);
+    document.querySelector("#loadExampleDraft").addEventListener("click", loadExampleIntoDraft);
+    document.querySelector("#saveDraftVersion").addEventListener("click", saveDraftVersion);
+    document.querySelector("#quickSaveDraft").addEventListener("click", saveDraftVersion);
+    document.querySelector("#suggestTitle").addEventListener("click", () => { els.essayTitle.value = sample(currentData().titles, 1)[0]; renderWords(); renderPhrases(); save(); });
+    document.querySelector("#newPrompt").addEventListener("click", () => { renderPrompts(); document.querySelector('[data-tab="prompts"]').click(); });
+    document.querySelectorAll(".infographic-card").forEach(card => {
+      card.addEventListener("click", () => {
+        document.querySelector("#viewerTitle").textContent = card.dataset.title;
+        document.querySelector("#viewerImage").src = card.dataset.image;
+        document.querySelector("#viewerImage").alt = card.querySelector("img").alt;
+        document.querySelector("#imageViewer").classList.add("open");
+      });
+    });
+    document.querySelector("#closeViewer").addEventListener("click", () => document.querySelector("#imageViewer").classList.remove("open"));
+    document.querySelector("#imageViewer").addEventListener("click", event => {
+      if (event.target.id === "imageViewer") document.querySelector("#imageViewer").classList.remove("open");
     });
     document.querySelector("#addPhraseSet").addEventListener("click", () => {
-      const set = els.phraseCategory.value === "Figurative language"
-        ? titleTheme().phrases
-        : phraseBank[els.essayType.value][els.phraseCategory.value] || [];
+      const set = figurativeOptions(els.phraseCategory.value).length ? figurativeOptions(els.phraseCategory.value) : phraseBank[els.essayType.value][els.phraseCategory.value] || [];
       insertText(set.join(" "));
     });
     document.querySelector("#insertOutline").addEventListener("click", () => insertText(`Writing plan:\n${outlineText()}\n\n`));
-    document.querySelector("#openRubric").addEventListener("click", () => {
-      document.querySelector('[data-tab="rubric"]').click();
-      document.querySelector("#rubric").scrollIntoView({ behavior: "smooth", block: "start" });
+    document.querySelectorAll(".process-step").forEach(button => {
+      button.addEventListener("click", () => {
+        if (button.dataset.stage === "publish") return;
+        setProcessStage(button.dataset.stage);
+      });
     });
-    document.querySelector("#markFromDraft").addEventListener("click", () => {
-      applyAutomaticMarks(true);
-      document.querySelector('[data-tab="rubric"]').click();
-      document.querySelector("#rubric").scrollIntoView({ behavior: "smooth", block: "start" });
-      save();
+    document.querySelector("#saveStageSnapshot").addEventListener("click", () => saveStageSnapshot());
+    document.querySelector("#viewStageHistory").addEventListener("click", () => {
+      renderWorkflow();
+      els.stageHistory.scrollIntoView({ behavior: "smooth", block: "nearest" });
     });
-    els.autoMark.addEventListener("click", () => {
-      applyAutomaticMarks(true);
-      save();
+    document.querySelector("#processPublish").addEventListener("click", async () => {
+      currentStage = "publish";
+      saveStageSnapshot("publish", "Publish stage saved");
+      await navigator.clipboard.writeText(`${els.essayTitle.value ? `${els.essayTitle.value}\n\n` : ""}${els.draft.value}`);
+      if (saveDraftVersion()) toast("Final draft copied and saved");
     });
-    els.liveAutoCheck.addEventListener("change", () => {
-      if (els.liveAutoCheck.checked) applyAutomaticMarks(true);
-      save();
-    });
-    document.querySelector("#insertRubric").addEventListener("click", () => {
-      applyAutomaticMarks();
-      insertText(`Self-check rubric (${els.rubricTotal.textContent}/20):\n${rubricText()}\n\n`);
-    });
-    document.querySelector("#resetOutline").addEventListener("click", () => { renderOutline(); save(); toast("Plan reset"); });
-    document.querySelector("#clearDraft").addEventListener("click", () => {
-      if (!els.draft.value || window.confirm("Clear the current draft?")) {
-        els.draft.value = "";
-        updateStats();
-        save();
-      }
-    });
-    document.querySelector("#copyDraft").addEventListener("click", async () => {
-      const text = `${els.essayTitle.value ? `${els.essayTitle.value}\n\n` : ""}${els.draft.value}`;
-      await navigator.clipboard.writeText(text);
-      toast("Draft copied");
-    });
+    document.querySelector("#markFromDraft").addEventListener("click", () => { applyAutomaticMarks(true); document.querySelector('[data-tab="rubric"]').click(); document.querySelector("#draftReview").scrollIntoView({ behavior: "smooth", block: "start" }); save(); });
+    document.querySelector("#openReview").addEventListener("click", () => document.querySelector("#draftReview").scrollIntoView({ behavior: "smooth", block: "start" }));
+    els.autoMark.addEventListener("click", () => { applyAutomaticMarks(true); save(); });
+    els.liveAutoCheck.addEventListener("change", () => { if (els.liveAutoCheck.checked) applyAutomaticMarks(true); save(); });
+    document.querySelector("#insertRubric").addEventListener("click", () => { applyAutomaticMarks(); insertText(`Self-check rubric (${els.rubricTotal.textContent}/20):\n${rubricText()}\n\nRecommendations:\n${[...els.issueList.querySelectorAll(".issue-card")].map(card => `- ${card.innerText.replace(/\n/g, ": ")}`).join("\n")}\n\n`); });
+    document.querySelector("#resetOutline").addEventListener("click", () => { renderOutline(); save(); });
+    document.querySelector("#clearDraft").addEventListener("click", () => { if (!els.draft.value || window.confirm("Clear the current draft?")) { els.draft.value = ""; updateStats(); applyAutomaticMarks(); save(); } });
+    document.querySelector("#copyDraft").addEventListener("click", async () => { await navigator.clipboard.writeText(`${els.essayTitle.value ? `${els.essayTitle.value}\n\n` : ""}${els.draft.value}`); toast("Draft copied"); });
 
     load();
   </script>
