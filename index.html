@@ -4,6 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Essay Writing Studio</title>
+  <!-- Anonymous usage analytics. Draft text, titles, names, and prompts are never sent. -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-95HJTQH9E0"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag("js", new Date());
+    gtag("config", "G-95HJTQH9E0", {
+      allow_google_signals: false,
+      allow_ad_personalization_signals: false
+    });
+  </script>
   <style>
     :root {
       --ink: #18202a;
@@ -1005,6 +1016,14 @@
       window.setTimeout(() => els.toast.classList.remove("show"), 1800);
     }
 
+    function trackEvent(name, details = {}) {
+      try {
+        if (typeof window.gtag === "function") window.gtag("event", name, details);
+      } catch {
+        // Analytics must never interrupt writing, marking, or saving.
+      }
+    }
+
     function readSavedState() {
       try { return JSON.parse(localStorage.getItem(stateKey) || "{}"); } catch { return {}; }
     }
@@ -1455,6 +1474,7 @@
       updateStats();
       applyAutomaticMarks();
       save();
+      trackEvent("example_opened", { story: selectedExampleStory, stage: selectedExampleStage });
       toast(`${stageLabel(selectedExampleStage)} example opened`);
       els.draft.focus();
     }
@@ -1518,6 +1538,7 @@
       els.draftSaveName.value = "";
       renderDrafts();
       document.querySelector('[data-tab="drafts"]').click();
+      trackEvent("draft_version_saved", { writing_type: els.essayType.value, process_stage: currentStage });
       toast("Draft saved");
       return true;
     }
@@ -1599,6 +1620,7 @@
     function setProcessStage(stage, options = {}) {
       currentStage = stage;
       if (options.capture !== false) saveStageSnapshot(stage, `${stageLabel(stage)} stage saved`);
+      trackEvent("writing_stage_selected", { process_stage: stage, writing_type: els.essayType.value });
       renderWorkflow();
       if (stage === "plan") {
         document.querySelector('[data-tab="plan"]').click();
@@ -1757,10 +1779,11 @@
         document.querySelectorAll(".tab-panel").forEach(panel => panel.classList.add("hidden"));
         tab.classList.add("active");
         document.querySelector(`#${tab.dataset.tab}`).classList.remove("hidden");
+        trackEvent("helper_tab_opened", { helper_tab: tab.dataset.tab });
       });
     });
 
-    els.essayType.addEventListener("change", () => { renderAll(); applyAutomaticMarks(); save(); toast(`${currentData().label} selected`); });
+    els.essayType.addEventListener("change", () => { renderAll(); applyAutomaticMarks(); save(); trackEvent("writing_type_selected", { writing_type: els.essayType.value }); toast(`${currentData().label} selected`); });
     els.draft.addEventListener("input", () => { updateStats(); if (els.liveAutoCheck.checked) applyAutomaticMarks(); save(); });
     els.draft.addEventListener("select", updateStats);
     els.draft.addEventListener("mouseup", updateStats);
@@ -1817,11 +1840,12 @@
       currentStage = "publish";
       saveStageSnapshot("publish", "Publish stage saved");
       await navigator.clipboard.writeText(`${els.essayTitle.value ? `${els.essayTitle.value}\n\n` : ""}${els.draft.value}`);
+      trackEvent("draft_published", { writing_type: els.essayType.value });
       if (saveDraftVersion()) toast("Final draft copied and saved");
     });
-    document.querySelector("#markFromDraft").addEventListener("click", () => { applyAutomaticMarks(true); document.querySelector('[data-tab="rubric"]').click(); document.querySelector("#draftReview").scrollIntoView({ behavior: "smooth", block: "start" }); save(); });
+    document.querySelector("#markFromDraft").addEventListener("click", () => { applyAutomaticMarks(true); trackEvent("draft_marked", { writing_type: els.essayType.value, process_stage: currentStage }); document.querySelector('[data-tab="rubric"]').click(); document.querySelector("#draftReview").scrollIntoView({ behavior: "smooth", block: "start" }); save(); });
     document.querySelector("#openReview").addEventListener("click", () => document.querySelector("#draftReview").scrollIntoView({ behavior: "smooth", block: "start" }));
-    els.autoMark.addEventListener("click", () => { applyAutomaticMarks(true); save(); });
+    els.autoMark.addEventListener("click", () => { applyAutomaticMarks(true); trackEvent("draft_marked", { writing_type: els.essayType.value, process_stage: currentStage }); save(); });
     els.liveAutoCheck.addEventListener("change", () => { if (els.liveAutoCheck.checked) applyAutomaticMarks(true); save(); });
     document.querySelector("#insertRubric").addEventListener("click", () => { applyAutomaticMarks(); insertText(`Self-check rubric (${els.rubricTotal.textContent}/20):\n${rubricText()}\n\nRecommendations:\n${[...els.issueList.querySelectorAll(".issue-card")].map(card => `- ${card.innerText.replace(/\n/g, ": ")}`).join("\n")}\n\n`); });
     document.querySelector("#resetOutline").addEventListener("click", () => { renderOutline(); save(); });
