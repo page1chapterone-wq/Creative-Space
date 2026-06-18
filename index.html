@@ -1569,6 +1569,22 @@
       return `${wordText} words and ${sentenceText} sentences since the previous saved stage.`;
     }
 
+    function latestStageSnapshot(stage) {
+      return [...stageSnapshots].reverse().find(snapshot => snapshot.stage === stage);
+    }
+
+    function openStageSnapshot(snapshot, showMessage = true) {
+      currentStage = snapshot.stage;
+      els.essayType.value = typeData[snapshot.type] ? snapshot.type : els.essayType.value;
+      els.essayTitle.value = snapshot.title || "";
+      els.draft.value = snapshot.draft || "";
+      renderAll(snapshot.outline || []);
+      updateStats();
+      applyAutomaticMarks();
+      save();
+      if (showMessage) toast(`${snapshot.stageLabel} stage opened`);
+    }
+
     function renderWorkflow() {
       const completedStages = new Set(stageSnapshots.map(snapshot => snapshot.stage));
       document.querySelectorAll(".process-step").forEach(button => {
@@ -1590,15 +1606,7 @@
         card.innerHTML = `<strong>${snapshot.stageLabel} saved</strong><span>${snapshot.wordCount || 0} words - ${savedDate}</span><span>${snapshotChange(snapshot, index)}</span><span>${escapeHtml(preview)}</span><div class="process-history-actions"><button class="mini" type="button" data-action="restore">Open</button><button class="mini" type="button" data-action="copy">Copy</button></div>`;
         card.querySelector('[data-action="restore"]').addEventListener("click", () => {
           if (els.draft.value.trim() && !window.confirm("Open this saved stage? The current active draft will be replaced.")) return;
-          currentStage = snapshot.stage;
-          els.essayType.value = typeData[snapshot.type] ? snapshot.type : els.essayType.value;
-          els.essayTitle.value = snapshot.title || "";
-          els.draft.value = snapshot.draft || "";
-          renderAll(snapshot.outline || []);
-          updateStats();
-          applyAutomaticMarks();
-          save();
-          toast(`${snapshot.stageLabel} stage opened`);
+          openStageSnapshot(snapshot);
         });
         card.querySelector('[data-action="copy"]').addEventListener("click", async () => {
           await navigator.clipboard.writeText(`${snapshot.title ? `${snapshot.title}\n\n` : ""}${snapshot.draft || ""}`);
@@ -1608,20 +1616,38 @@
       });
     }
 
-    function saveStageSnapshot(stage = currentStage, message = `${stageLabel(stage)} stage saved`) {
+    function saveStageSnapshot(stage = currentStage, message = `${stageLabel(stage)} stage saved`, options = {}) {
       const next = stageSnapshot(stage);
-      stageSnapshots.push(next);
+      if (options.replaceLatest) {
+        const latestIndex = stageSnapshots.map(snapshot => snapshot.stage).lastIndexOf(stage);
+        if (latestIndex >= 0) stageSnapshots[latestIndex] = next;
+        else stageSnapshots.push(next);
+      } else {
+        stageSnapshots.push(next);
+      }
       renderWorkflow();
       save();
-      toast(message);
+      if (!options.silent) toast(message);
       return next;
     }
 
     function setProcessStage(stage, options = {}) {
+      if (stage === currentStage) {
+        const current = latestStageSnapshot(stage);
+        if (current) openStageSnapshot(current, false);
+        else saveStageSnapshot(stage, `${stageLabel(stage)} stage saved`, { replaceLatest: true });
+        trackEvent("writing_stage_selected", { process_stage: stage, writing_type: els.essayType.value });
+        return;
+      }
+      if (options.capture !== false) saveStageSnapshot(currentStage, `${stageLabel(currentStage)} stage saved`, { replaceLatest: true, silent: true });
       currentStage = stage;
-      if (options.capture !== false) saveStageSnapshot(stage, `${stageLabel(stage)} stage saved`);
       trackEvent("writing_stage_selected", { process_stage: stage, writing_type: els.essayType.value });
-      renderWorkflow();
+      const savedStage = latestStageSnapshot(stage);
+      if (savedStage) openStageSnapshot(savedStage, false);
+      else {
+        renderWorkflow();
+        save();
+      }
       if (stage === "plan") {
         document.querySelector('[data-tab="plan"]').click();
         document.querySelector("#plan").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1837,8 +1863,9 @@
       els.stageHistory.scrollIntoView({ behavior: "smooth", block: "nearest" });
     });
     document.querySelector("#processPublish").addEventListener("click", async () => {
+      if (currentStage !== "publish") saveStageSnapshot(currentStage, `${stageLabel(currentStage)} stage saved`, { replaceLatest: true, silent: true });
       currentStage = "publish";
-      saveStageSnapshot("publish", "Publish stage saved");
+      saveStageSnapshot("publish", "Publish stage saved", { replaceLatest: true });
       await navigator.clipboard.writeText(`${els.essayTitle.value ? `${els.essayTitle.value}\n\n` : ""}${els.draft.value}`);
       trackEvent("draft_published", { writing_type: els.essayType.value });
       if (saveDraftVersion()) toast("Final draft copied and saved");
