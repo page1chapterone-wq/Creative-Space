@@ -479,6 +479,29 @@
       .example-stage-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .process-panel { border-right: 0; border-bottom: 1px solid var(--line); }
     }
+
+    .print-page { display: none; }
+
+    @media print {
+      body { background: #fff; color: #111; }
+      header, main, .toast, .image-viewer { display: none !important; }
+      .print-page {
+        display: block;
+        padding: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        color: #111;
+      }
+      .print-page h1 { font-size: 22pt; margin: 0 0 6pt; }
+      .print-page h2 { font-size: 14pt; margin: 18pt 0 6pt; border-bottom: 1px solid #999; padding-bottom: 3pt; }
+      .print-meta { font-family: Arial, sans-serif; font-size: 10pt; color: #444; margin-bottom: 14pt; }
+      .print-draft, .print-list {
+        white-space: pre-wrap;
+        font-size: 12pt;
+        line-height: 1.55;
+      }
+      .print-list { font-family: Arial, sans-serif; font-size: 10.5pt; }
+      @page { margin: 18mm; }
+    }
   </style>
 </head>
 <body>
@@ -562,6 +585,8 @@
           <button class="solid" id="markFromDraft" type="button">Mark Draft</button>
           <button class="ghost" id="openReview" type="button">Open Review</button>
           <button class="ghost" id="insertRubric" type="button">Insert Self-Check</button>
+          <button class="ghost" id="printDraftButton" type="button">Print</button>
+          <button class="ghost" id="downloadDraftButton" type="button">Download</button>
           <button class="ghost" id="clearDraft" type="button">Clear</button>
         </div>
       </div>
@@ -721,6 +746,16 @@
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <section class="print-page" id="printPage" aria-label="Printable writing summary">
+    <h1 id="printTitle">Essay Writing Studio</h1>
+    <div class="print-meta" id="printMeta"></div>
+    <h2>Draft</h2>
+    <div class="print-draft" id="printDraftContent"></div>
+    <h2>Rubric And Recommendations</h2>
+    <div class="print-list" id="printRubric"></div>
+    <h2>Writing Process History</h2>
+    <div class="print-list" id="printProcess"></div>
+  </section>
   <div class="image-viewer" id="imageViewer" role="dialog" aria-modal="true" aria-label="Infographic viewer">
     <div class="image-viewer-inner">
       <div class="image-viewer-head">
@@ -1771,6 +1806,60 @@
       }).join("\n\n");
     }
 
+    function processPrintText() {
+      if (!stageSnapshots.length) return "No writing-process stages have been saved yet.";
+      return stageSnapshots.map((snapshot, index) => {
+        const savedDate = new Date(snapshot.savedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+        return `${index + 1}. ${snapshot.stageLabel} - ${snapshot.wordCount || 0} words - ${savedDate}\n${snapshotChange(snapshot, index)}`;
+      }).join("\n\n");
+    }
+
+    function safeFileName(text) {
+      return (text || "essay-draft").trim().toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 60) || "essay-draft";
+    }
+
+    function exportText() {
+      applyAutomaticMarks();
+      const now = new Date().toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+      const recommendations = [...els.issueList.querySelectorAll(".issue-card")]
+        .map(card => `- ${card.innerText.replace(/\n/g, ": ")}`)
+        .join("\n") || "No recommendations yet.";
+      return `${els.essayTitle.value.trim() || "Untitled Draft"}\n${currentData().label}\nExported ${now}\nRubric score: ${els.rubricTotal.textContent}/20\n\nDRAFT\n${els.draft.value.trim() || "No draft text yet."}\n\nRUBRIC AND SELF-CHECK\n${rubricText()}\n\nRECOMMENDATIONS\n${recommendations}\n\nWRITING PROCESS HISTORY\n${processPrintText()}\n`;
+    }
+
+    function downloadCurrentDraft() {
+      const blob = new Blob([exportText()], { type: "text/plain;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${safeFileName(els.essayTitle.value || currentData().label)}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      URL.revokeObjectURL(link.href);
+      link.remove();
+      trackEvent("draft_downloaded", { writing_type: els.essayType.value, process_stage: currentStage });
+      toast("Draft downloaded");
+    }
+
+    function preparePrintPage() {
+      applyAutomaticMarks();
+      const now = new Date().toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+      const title = els.essayTitle.value.trim() || "Untitled Draft";
+      document.querySelector("#printTitle").textContent = title;
+      document.querySelector("#printMeta").textContent = `${currentData().label} | ${els.rubricTotal.textContent}/20 | Printed ${now}`;
+      document.querySelector("#printDraftContent").textContent = els.draft.value.trim() || "No draft text yet.";
+      document.querySelector("#printRubric").textContent = `${rubricText()}\n\nRecommendations:\n${[...els.issueList.querySelectorAll(".issue-card")].map(card => `- ${card.innerText.replace(/\n/g, ": ")}`).join("\n") || "No recommendations yet."}`;
+      document.querySelector("#printProcess").textContent = processPrintText();
+    }
+
+    function printCurrentDraft() {
+      preparePrintPage();
+      trackEvent("draft_printed", { writing_type: els.essayType.value, process_stage: currentStage });
+      window.print();
+    }
+
     function renderAll(outlineValues = [], scores = {}) {
       els.modeHelp.textContent = currentData().help;
       renderTitles();
@@ -1875,6 +1964,8 @@
     els.autoMark.addEventListener("click", () => { applyAutomaticMarks(true); trackEvent("draft_marked", { writing_type: els.essayType.value, process_stage: currentStage }); save(); });
     els.liveAutoCheck.addEventListener("change", () => { if (els.liveAutoCheck.checked) applyAutomaticMarks(true); save(); });
     document.querySelector("#insertRubric").addEventListener("click", () => { applyAutomaticMarks(); insertText(`Self-check rubric (${els.rubricTotal.textContent}/20):\n${rubricText()}\n\nRecommendations:\n${[...els.issueList.querySelectorAll(".issue-card")].map(card => `- ${card.innerText.replace(/\n/g, ": ")}`).join("\n")}\n\n`); });
+    document.querySelector("#printDraftButton").addEventListener("click", printCurrentDraft);
+    document.querySelector("#downloadDraftButton").addEventListener("click", downloadCurrentDraft);
     document.querySelector("#resetOutline").addEventListener("click", () => { renderOutline(); save(); });
     document.querySelector("#clearDraft").addEventListener("click", () => { if (!els.draft.value || window.confirm("Clear the current draft?")) { els.draft.value = ""; updateStats(); applyAutomaticMarks(); save(); } });
     document.querySelector("#copyDraft").addEventListener("click", async () => { await navigator.clipboard.writeText(`${els.essayTitle.value ? `${els.essayTitle.value}\n\n` : ""}${els.draft.value}`); toast("Draft copied"); });
