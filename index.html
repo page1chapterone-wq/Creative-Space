@@ -64,14 +64,18 @@
 
     .brand { display: flex; gap: 12px; align-items: center; }
 
-    .mark {
-      width: 42px;
-      height: 42px;
-      border-radius: 8px;
-      background:
-        radial-gradient(circle at 30% 28%, #fff7df 0 18%, transparent 19%),
-        linear-gradient(140deg, #47746a, #2a4d64 58%, var(--coral));
-      box-shadow: 0 10px 24px rgba(39, 74, 83, 0.25);
+    .app-logo {
+      width: 58px;
+      height: 44px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .phoenix-logo {
+      width: 54px;
+      height: 44px;
+      object-fit: contain;
+      flex: 0 0 auto;
     }
 
     h1, h2, h3, p { margin: 0; }
@@ -679,13 +683,14 @@
 <body>
   <header>
     <div class="brand">
-      <div class="mark" aria-hidden="true"></div>
+      <img class="app-logo" src="assets/zenith-za-logo.png" alt="Zenith Academy ZA logo" />
       <div>
         <h1>Essay Writing Studio</h1>
         <p class="subtitle">Plan, draft, self-check, and get tutoring suggestions.</p>
       </div>
     </div>
     <div class="top-actions">
+      <img class="phoenix-logo" src="assets/zenith-phoenix-logo.png" alt="Zenith Academy phoenix logo" />
       <div class="metric"><strong id="wordCount">0</strong><span id="wordCountLabel">Words</span></div>
       <div class="metric"><strong id="sentenceCount">0</strong><span id="sentenceCountLabel">Sentences</span></div>
       <div class="metric"><strong id="rubricTotalTop">0/20</strong><span>Rubric</span></div>
