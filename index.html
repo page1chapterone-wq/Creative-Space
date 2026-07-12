@@ -129,10 +129,59 @@
 
     .writer { display: grid; grid-template-rows: auto auto auto auto auto 1fr auto auto auto; min-height: calc(100vh - 126px); }
 
+    .writing-area {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.42fr) minmax(320px, 1fr);
+      min-height: 460px;
+      background: var(--paper);
+    }
+
     .draft-stage {
       min-height: 460px;
       background: var(--paper);
     }
+
+    .review-box.hidden + .draft-stage { grid-column: 1 / -1; }
+
+    .focus-controls {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 40;
+      display: none;
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid rgba(109, 122, 124, 0.24);
+      border-radius: 8px;
+      background: rgba(251, 250, 246, 0.92);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    body.focus-writing { overflow: hidden; }
+    body.focus-writing header,
+    body.focus-writing .side,
+    body.focus-writing .mode-row,
+    body.focus-writing .title-row,
+    body.focus-writing .voice-dictation,
+    body.focus-writing .process-panel,
+    body.focus-writing .quest-panel,
+    body.focus-writing .process-workspace,
+    body.focus-writing .writing-footer { display: none; }
+    body.focus-writing .focus-controls { display: flex; }
+    body.focus-writing main { display: block; padding: 0; }
+    body.focus-writing .writer {
+      min-height: 100vh;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      background: var(--paper);
+    }
+    body.focus-writing .writing-area { min-height: 100vh; height: 100vh; }
+    body.focus-writing .draft-stage { min-height: 100vh; }
+    body.focus-writing textarea { min-height: 100vh; height: 100vh; }
+    body.focus-writing .review-box { height: 100vh; }
+    body.focus-writing .highlighted-draft { max-height: calc(100vh - 128px); }
 
     .process-panel {
       padding: 16px;
@@ -405,9 +454,10 @@
     }
 
     .review-box {
-      border-top: 1px solid var(--line);
+      border-right: 1px solid var(--line);
       background: #fff;
       padding: 16px;
+      overflow: auto;
     }
 
     .review-head {
@@ -420,7 +470,7 @@
 
     .highlighted-draft {
       min-height: 92px;
-      max-height: 260px;
+      max-height: 420px;
       overflow: auto;
       padding: 14px;
       border-radius: 8px;
@@ -644,7 +694,7 @@
     }
 
     @media (max-width: 720px) {
-      header, .mode-row, .title-row, .draft-stage, .rubric-summary, .select-row, .rubric-card header { grid-template-columns: 1fr; }
+      header, .mode-row, .title-row, .writing-area, .draft-stage, .rubric-summary, .select-row, .rubric-card header { grid-template-columns: 1fr; }
       header { align-items: stretch; flex-direction: column; }
       .top-actions, .draft-tools { width: 100%; }
       .metric, .ghost, .solid { flex: 1 1 auto; }
@@ -655,6 +705,8 @@
       .quest-list, .badge-grid { grid-template-columns: 1fr; }
       .draft-save-row { grid-template-columns: 1fr; }
       .process-panel { border-right: 0; border-bottom: 1px solid var(--line); }
+      .review-box { border-right: 0; border-bottom: 1px solid var(--line); }
+      .highlighted-draft { max-height: 260px; }
     }
 
     .print-page { display: none; }
@@ -682,6 +734,10 @@
   </style>
 </head>
 <body>
+  <div class="focus-controls" aria-label="Writing focus controls">
+    <button class="solid" id="focusMarkDraft" type="button">Mark Draft</button>
+    <button class="ghost" id="exitFocusWriting" type="button">Exit Focus</button>
+  </div>
   <header>
     <div class="brand">
       <img class="app-logo" src="assets/zenith-za-logo.png" alt="Zenith Academy ZA logo" />
@@ -698,6 +754,7 @@
       <button class="ghost" id="newDraftButton" type="button">New Draft</button>
       <button class="ghost" id="copyDraft" type="button">Copy Draft</button>
       <button class="solid" id="newPrompt" type="button">New Prompt</button>
+      <button class="ghost" id="focusWritingButton" type="button">Focus Writing</button>
     </div>
   </header>
 
@@ -750,18 +807,20 @@
         <div class="quest-bar" aria-label="Quest progress"><div class="quest-bar-fill" id="questProgress"></div></div>
         <div class="quest-list" id="questQuickList"></div>
       </aside>
-      <div class="draft-stage">
-        <textarea id="draft" lang="en-GB" spellcheck="true" placeholder="Begin writing here. Use Mark Draft for rubric scores, highlighted issues, and tutoring recommendations."></textarea>
-      </div>
-      <div class="review-box hidden" id="draftReview">
-        <div class="review-head">
-          <div>
-            <h2>Highlighted Review</h2>
-            <p class="muted">Likely issues are highlighted here while your original draft stays editable above.</p>
+      <div class="writing-area">
+        <div class="review-box hidden" id="draftReview">
+          <div class="review-head">
+            <div>
+              <h2>Highlighted Review</h2>
+              <p class="muted">Use this glance panel while editing the draft beside it.</p>
+            </div>
+            <span class="level-badge" id="issueCount">0 issues</span>
           </div>
-          <span class="level-badge" id="issueCount">0 issues</span>
+          <div class="highlighted-draft" id="highlightedDraft">Write or paste a draft, then click Mark Draft.</div>
         </div>
-        <div class="highlighted-draft" id="highlightedDraft">Write or paste a draft, then click Mark Draft.</div>
+        <div class="draft-stage">
+          <textarea id="draft" lang="en-GB" spellcheck="true" placeholder="Begin writing here. Use Mark Draft for rubric scores, highlighted issues, and tutoring recommendations."></textarea>
+        </div>
       </div>
       <div class="process-workspace" aria-label="Writing process progress">
         <span class="level-badge" id="stageStatus">Plan stage</span>
@@ -779,6 +838,7 @@
           <button class="solid" id="markFromDraft" type="button">Mark Draft</button>
           <button class="ghost" id="insertRubric" type="button">Insert Self-Check</button>
           <button class="ghost" id="printDraftButton" type="button">Print</button>
+          <button class="ghost" id="emailDraftButton" type="button">Email</button>
           <button class="ghost" id="downloadDraftButton" type="button">Download</button>
           <button class="ghost" id="clearDraft" type="button">Clear</button>
         </div>
@@ -793,7 +853,6 @@
         <button class="tab" type="button" data-tab="words">Words</button>
         <button class="tab" type="button" data-tab="phrases">Phrases</button>
         <button class="tab" type="button" data-tab="infographics">Infographics</button>
-        <button class="tab" type="button" data-tab="plan">Plan</button>
         <button class="tab" type="button" data-tab="rubric">Rubric</button>
         <button class="tab" type="button" data-tab="quest">Quest</button>
       </nav>
@@ -849,6 +908,15 @@
             <div class="draft-save-row">
               <input id="draftSaveName" placeholder="Draft name" aria-label="Draft name" />
               <button class="solid" id="saveDraftVersion" type="button">Save Draft</button>
+            </div>
+            <div class="process-change-row">
+              <select id="draftSelect" aria-label="Saved draft"></select>
+              <button class="ghost" id="openSavedDraft" type="button">Open</button>
+              <button class="ghost" id="replaceSavedDraft" type="button">Replace</button>
+            </div>
+            <div class="draft-card-actions">
+              <button class="mini" id="copySavedDraft" type="button">Copy</button>
+              <button class="mini" id="deleteSavedDraft" type="button">Delete</button>
             </div>
             <div id="draftList"></div>
           </div>
@@ -923,6 +991,46 @@
                 <img src="assets/mnemonic-magic.jpg" alt="Mnemonic Magic HEARTS story ideas infographic" />
                 <strong>Mnemonic Magic: HEARTS</strong>
                 <span>Use this to remember story idea types: horror, extraordinary, adventure, realistic, tragedy, and surprise or happy stories.</span>
+              </button>
+              <button class="infographic-card" type="button" data-image="assets/planning-infographic.png" data-title="Plan Your Writing">
+                <img src="assets/planning-infographic.png" alt="Planning infographic showing plan points for narrative, report, letters, descriptive, persuasive, and expository writing" />
+                <strong>Plan Your Writing</strong>
+                <span>Use this to choose the right planning points for each writing form before drafting.</span>
+              </button>
+              <button class="infographic-card" type="button" data-image="assets/plan-narrative.png" data-title="Narrative Story Plan">
+                <img src="assets/plan-narrative.png" alt="Narrative story planning infographic with hook, setting, conflict, climax, and resolution" />
+                <strong>Narrative Story Plan</strong>
+                <span>Plan a story with a clear beginning, problem, turning point, and ending.</span>
+              </button>
+              <button class="infographic-card" type="button" data-image="assets/plan-report.png" data-title="Report Plan">
+                <img src="assets/plan-report.png" alt="Report planning infographic with topic, facts, headings, evidence, and conclusion" />
+                <strong>Report Plan</strong>
+                <span>Organise facts, headings, examples, and a clear closing statement.</span>
+              </button>
+              <button class="infographic-card" type="button" data-image="assets/plan-formal-letter.png" data-title="Formal Letter Plan">
+                <img src="assets/plan-formal-letter.png" alt="Formal letter planning infographic with addresses, greeting, purpose, details, request, and closing" />
+                <strong>Formal Letter Plan</strong>
+                <span>Plan the address, greeting, purpose, supporting details, request, and closing.</span>
+              </button>
+              <button class="infographic-card" type="button" data-image="assets/plan-informal-letter.png" data-title="Informal Letter Plan">
+                <img src="assets/plan-informal-letter.png" alt="Informal letter planning infographic with greeting, news, feelings, questions, and friendly closing" />
+                <strong>Informal Letter Plan</strong>
+                <span>Prepare a friendly letter with news, feelings, questions, and a warm ending.</span>
+              </button>
+              <button class="infographic-card" type="button" data-image="assets/plan-descriptive.png" data-title="Descriptive Essay Plan">
+                <img src="assets/plan-descriptive.png" alt="Descriptive essay planning infographic with focus, senses, mood, comparisons, and closing impression" />
+                <strong>Descriptive Essay Plan</strong>
+                <span>Build a vivid description using sensory details, mood, and comparisons.</span>
+              </button>
+              <button class="infographic-card" type="button" data-image="assets/plan-persuasive.png" data-title="Persuasive Essay Plan">
+                <img src="assets/plan-persuasive.png" alt="Persuasive essay planning infographic with opinion, reasons, evidence, counterargument, and call to action" />
+                <strong>Persuasive Essay Plan</strong>
+                <span>Shape an opinion with reasons, evidence, a counterargument, and a call to action.</span>
+              </button>
+              <button class="infographic-card" type="button" data-image="assets/plan-expository.png" data-title="Expository Essay Plan">
+                <img src="assets/plan-expository.png" alt="Expository essay planning infographic with topic, main idea, steps, examples, and conclusion" />
+                <strong>Expository Essay Plan</strong>
+                <span>Explain a topic clearly with main ideas, steps, examples, and a summary.</span>
               </button>
             </div>
           </div>
@@ -1279,7 +1387,7 @@
       essayType: document.querySelector("#essayType"), modeHelp: document.querySelector("#modeHelp"), draft: document.querySelector("#draft"), essayTitle: document.querySelector("#essayTitle"),
       titleReminder: document.querySelector("#titleReminder"),
       wordCount: document.querySelector("#wordCount"), wordCountLabel: document.querySelector("#wordCountLabel"), sentenceCount: document.querySelector("#sentenceCount"), sentenceCountLabel: document.querySelector("#sentenceCountLabel"), rubricTotalTop: document.querySelector("#rubricTotalTop"), saveStatus: document.querySelector("#saveStatus"),
-      toast: document.querySelector("#toast"), titleList: document.querySelector("#titleList"), promptList: document.querySelector("#promptList"), excerptList: document.querySelector("#excerptList"), exampleStorySelect: document.querySelector("#exampleStorySelect"), exampleStageTabs: document.querySelector("#exampleStageTabs"), exampleStoryEditor: document.querySelector("#exampleStoryEditor"), exampleGuidance: document.querySelector("#exampleGuidance"), exampleStageStatus: document.querySelector("#exampleStageStatus"), exampleSaveStatus: document.querySelector("#exampleSaveStatus"), workshopQuestSummary: document.querySelector("#workshopQuestSummary"), workshopQuestPoints: document.querySelector("#workshopQuestPoints"), workshopQuestProgress: document.querySelector("#workshopQuestProgress"), workshopQuestList: document.querySelector("#workshopQuestList"), draftList: document.querySelector("#draftList"), draftCount: document.querySelector("#draftCount"), draftSaveName: document.querySelector("#draftSaveName"), wordGrid: document.querySelector("#wordGrid"),
+      toast: document.querySelector("#toast"), titleList: document.querySelector("#titleList"), promptList: document.querySelector("#promptList"), excerptList: document.querySelector("#excerptList"), exampleStorySelect: document.querySelector("#exampleStorySelect"), exampleStageTabs: document.querySelector("#exampleStageTabs"), exampleStoryEditor: document.querySelector("#exampleStoryEditor"), exampleGuidance: document.querySelector("#exampleGuidance"), exampleStageStatus: document.querySelector("#exampleStageStatus"), exampleSaveStatus: document.querySelector("#exampleSaveStatus"), workshopQuestSummary: document.querySelector("#workshopQuestSummary"), workshopQuestPoints: document.querySelector("#workshopQuestPoints"), workshopQuestProgress: document.querySelector("#workshopQuestProgress"), workshopQuestList: document.querySelector("#workshopQuestList"), draftList: document.querySelector("#draftList"), draftCount: document.querySelector("#draftCount"), draftSaveName: document.querySelector("#draftSaveName"), draftSelect: document.querySelector("#draftSelect"), openSavedDraft: document.querySelector("#openSavedDraft"), replaceSavedDraft: document.querySelector("#replaceSavedDraft"), copySavedDraft: document.querySelector("#copySavedDraft"), deleteSavedDraft: document.querySelector("#deleteSavedDraft"), wordGrid: document.querySelector("#wordGrid"),
       wordCategory: document.querySelector("#wordCategory"), wordSearch: document.querySelector("#wordSearch"), customWordCategory: document.querySelector("#customWordCategory"), customWordInput: document.querySelector("#customWordInput"), addCustomWord: document.querySelector("#addCustomWord"), phraseCategory: document.querySelector("#phraseCategory"), customPhraseInput: document.querySelector("#customPhraseInput"), addCustomPhrase: document.querySelector("#addCustomPhrase"), phraseList: document.querySelector("#phraseList"),
       outlineGrid: document.querySelector("#outlineGrid"), planTitle: document.querySelector("#planTitle"), rubricList: document.querySelector("#rubricList"), rubricTotal: document.querySelector("#rubricTotal"),
       rubricLevel: document.querySelector("#rubricLevel"), rubricGuide: document.querySelector("#rubricGuide"), rubricAreaSelect: document.querySelector("#rubricAreaSelect"), autoMark: document.querySelector("#autoMark"), liveAutoCheck: document.querySelector("#liveAutoCheck"),
@@ -2291,50 +2399,93 @@
 
     function renderDrafts() {
       const drafts = readDrafts().sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+      const selectedBefore = els.draftSelect.value;
       els.draftCount.textContent = String(drafts.length);
+      els.draftSelect.innerHTML = "";
       els.draftList.innerHTML = "";
       if (!drafts.length) {
+        els.draftSelect.innerHTML = `<option value="">No saved drafts yet</option>`;
+        els.draftSelect.disabled = true;
+        els.openSavedDraft.disabled = true;
+        els.replaceSavedDraft.disabled = true;
+        els.copySavedDraft.disabled = true;
+        els.deleteSavedDraft.disabled = true;
         els.draftList.innerHTML = `<div class="issue-card"><strong>No saved drafts yet</strong><span>Use Save Draft to keep a named copy of the current writing. The app still auto-saves the active draft separately.</span></div>`;
         return;
       }
-      drafts.forEach(draftItem => {
-        const card = document.createElement("div");
-        card.className = "prompt-card";
+      els.draftSelect.disabled = false;
+      els.openSavedDraft.disabled = false;
+      els.replaceSavedDraft.disabled = false;
+      els.copySavedDraft.disabled = false;
+      els.deleteSavedDraft.disabled = false;
+      drafts.forEach((draftItem, index) => {
         const savedDate = new Date(draftItem.savedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
         const wordTotal = countText(draftItem.draft || "").words;
-        card.innerHTML = `<strong>${escapeHtml(draftItem.name)}</strong><span>${escapeHtml(draftItem.typeLabel || "Draft")} - ${wordTotal} words - saved ${savedDate}</span><span>${escapeHtml((draftItem.title || "Untitled").slice(0, 80))}</span><div class="draft-card-actions"><button class="mini" type="button" data-action="open">Open</button><button class="mini" type="button" data-action="replace">Replace</button><button class="mini" type="button" data-action="copy">Copy</button><button class="mini" type="button" data-action="delete">Delete</button></div>`;
-        card.querySelector('[data-action="open"]').addEventListener("click", () => {
-          if (els.draft.value.trim() && !window.confirm("Open this saved draft? The current active draft will be replaced, but saved drafts will remain.")) return;
-          els.essayType.value = typeData[draftItem.type] ? draftItem.type : "narrative";
-          els.essayTitle.value = draftItem.title || "";
-          els.draft.value = draftItem.draft || "";
-          stageSnapshots = Array.isArray(draftItem.process) ? draftItem.process : [];
-          currentStage = stageSnapshots.at(-1)?.stage || "draft";
-          renderAll(draftItem.outline || []);
-          updateStats();
-          applyAutomaticMarks();
-          save();
-          toast("Saved draft opened");
-        });
-        card.querySelector('[data-action="replace"]').addEventListener("click", () => {
-          if (!window.confirm("Replace this saved draft with the current draft?")) return;
-          const updated = readDrafts().map(item => item.id === draftItem.id ? { ...currentDraftSnapshot(draftItem.name), id: draftItem.id } : item);
-          if (!writeDrafts(updated)) return;
-          renderDrafts();
-          toast("Saved draft updated");
-        });
-        card.querySelector('[data-action="copy"]').addEventListener("click", async () => {
-          await navigator.clipboard.writeText(`${draftItem.title ? `${draftItem.title}\n\n` : ""}${draftItem.draft || ""}`);
-          toast("Saved draft copied");
-        });
-        card.querySelector('[data-action="delete"]').addEventListener("click", () => {
-          if (!window.confirm("Delete this saved draft?")) return;
-          if (!writeDrafts(readDrafts().filter(item => item.id !== draftItem.id))) return;
-          renderDrafts();
-          toast("Saved draft deleted");
-        });
-        els.draftList.appendChild(card);
+        const option = document.createElement("option");
+        option.value = draftItem.id;
+        option.textContent = `${index + 1}. ${draftItem.name} - ${wordTotal} words - ${savedDate}`;
+        els.draftSelect.appendChild(option);
       });
+      els.draftSelect.value = drafts.some(draftItem => draftItem.id === selectedBefore) ? selectedBefore : drafts[0].id;
+      renderSelectedDraftPreview();
+    }
+
+    function selectedSavedDraft() {
+      return readDrafts().find(draftItem => draftItem.id === els.draftSelect.value) || null;
+    }
+
+    function renderSelectedDraftPreview() {
+      const draftItem = selectedSavedDraft();
+      if (!draftItem) {
+        els.draftList.innerHTML = `<div class="issue-card"><strong>No saved draft selected</strong><span>Choose a saved draft from the dropdown.</span></div>`;
+        return;
+      }
+      const savedDate = new Date(draftItem.savedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+      const wordTotal = countText(draftItem.draft || "").words;
+      const preview = (draftItem.draft || "No draft text saved yet.").slice(0, 240);
+      els.draftList.innerHTML = `<div class="prompt-card"><strong>${escapeHtml(draftItem.name)}</strong><span>${escapeHtml(draftItem.typeLabel || "Draft")} - ${wordTotal} words - saved ${savedDate}</span><span>${escapeHtml(draftItem.title || "Untitled")}</span><span>${escapeHtml(preview)}</span></div>`;
+    }
+
+    function openSelectedSavedDraft() {
+      const draftItem = selectedSavedDraft();
+      if (!draftItem) return;
+      if (els.draft.value.trim() && !window.confirm("Open this saved draft? The current active draft will be replaced, but saved drafts will remain.")) return;
+      els.essayType.value = typeData[draftItem.type] ? draftItem.type : "narrative";
+      els.essayTitle.value = draftItem.title || "";
+      els.draft.value = draftItem.draft || "";
+      stageSnapshots = Array.isArray(draftItem.process) ? draftItem.process : [];
+      currentStage = stageSnapshots.at(-1)?.stage || "draft";
+      renderAll(draftItem.outline || []);
+      updateStats();
+      applyAutomaticMarks();
+      save();
+      toast("Saved draft opened");
+    }
+
+    function replaceSelectedSavedDraft() {
+      const draftItem = selectedSavedDraft();
+      if (!draftItem) return;
+      if (!window.confirm("Replace this saved draft with the current draft?")) return;
+      const updated = readDrafts().map(item => item.id === draftItem.id ? { ...currentDraftSnapshot(draftItem.name), id: draftItem.id } : item);
+      if (!writeDrafts(updated)) return;
+      renderDrafts();
+      toast("Saved draft updated");
+    }
+
+    async function copySelectedSavedDraft() {
+      const draftItem = selectedSavedDraft();
+      if (!draftItem) return;
+      await navigator.clipboard.writeText(`${draftItem.title ? `${draftItem.title}\n\n` : ""}${draftItem.draft || ""}`);
+      toast("Saved draft copied");
+    }
+
+    function deleteSelectedSavedDraft() {
+      const draftItem = selectedSavedDraft();
+      if (!draftItem) return;
+      if (!window.confirm("Delete this saved draft?")) return;
+      if (!writeDrafts(readDrafts().filter(item => item.id !== draftItem.id))) return;
+      renderDrafts();
+      toast("Saved draft deleted");
     }
 
     function saveDraftVersion() {
@@ -2536,8 +2687,8 @@
       if (savedStage) openStageSnapshot(savedStage, false);
       else openBlankStage(stage);
       if (stage === "plan") {
-        document.querySelector('[data-tab="plan"]').click();
-        document.querySelector("#plan").scrollIntoView({ behavior: "smooth", block: "start" });
+        document.querySelector('[data-tab="infographics"]').click();
+        document.querySelector("#infographics").scrollIntoView({ behavior: "smooth", block: "start" });
       }
       if (stage === "draft") els.draft.focus();
       if (stage === "revise") {
@@ -2909,6 +3060,16 @@
       openPrintOptions();
     }
 
+    function emailCurrentDraft() {
+      remindTitleIfMissing();
+      const subject = els.essayTitle.value.trim() || "Untitled Draft";
+      const body = `${subject}\n\n${els.draft.value.trim() || "No draft text yet."}\n\nRubric score: ${els.rubricTotal.textContent}/20`;
+      const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = mailto;
+      trackEvent("draft_email_started", { writing_type: els.essayType.value, process_stage: currentStage });
+      toast("Email app opened");
+    }
+
     function printSelectedSections() {
       const options = printChoiceOptions();
       if (!options.draft && !options.review && !options.rubric && !options.process) {
@@ -2919,6 +3080,16 @@
       closePrintOptions();
       trackEvent("draft_printed", { writing_type: els.essayType.value, process_stage: currentStage });
       window.print();
+    }
+
+    function setFocusWriting(enabled) {
+      document.body.classList.toggle("focus-writing", enabled);
+      if (enabled) {
+        els.draft.focus();
+        toast("Focus writing mode");
+      } else {
+        toast("Writing tools restored");
+      }
     }
 
     function renderAll(outlineValues = [], scores = {}) {
@@ -2993,6 +3164,11 @@
     document.querySelector("#resetExampleStage").addEventListener("click", resetExampleStage);
     document.querySelector("#loadExampleDraft").addEventListener("click", loadExampleIntoDraft);
     els.exampleStoryEditor.addEventListener("input", renderWorkshopQuest);
+    els.draftSelect.addEventListener("change", renderSelectedDraftPreview);
+    els.openSavedDraft.addEventListener("click", openSelectedSavedDraft);
+    els.replaceSavedDraft.addEventListener("click", replaceSelectedSavedDraft);
+    els.copySavedDraft.addEventListener("click", copySelectedSavedDraft);
+    els.deleteSavedDraft.addEventListener("click", deleteSelectedSavedDraft);
     document.querySelector("#saveDraftVersion").addEventListener("click", saveDraftVersion);
     document.querySelector("#quickSaveDraft").addEventListener("click", saveDraftVersion);
     document.querySelector("#newDraftButton").addEventListener("click", startNewDraft);
@@ -3038,6 +3214,17 @@
     els.rubricAreaSelect.addEventListener("change", showSelectedRubricArea);
     document.querySelector("#insertRubric").addEventListener("click", () => { applyAutomaticMarks(); insertText(`Self-check rubric (${els.rubricTotal.textContent}/20):\n${rubricText()}\n\nRecommendations:\n${[...els.issueList.querySelectorAll(".issue-card")].map(card => `- ${card.innerText.replace(/\n/g, ": ")}`).join("\n")}\n\n`); });
     document.querySelector("#printDraftButton").addEventListener("click", printCurrentDraft);
+    document.querySelector("#emailDraftButton").addEventListener("click", emailCurrentDraft);
+    document.querySelector("#focusWritingButton").addEventListener("click", () => setFocusWriting(true));
+    document.querySelector("#exitFocusWriting").addEventListener("click", () => setFocusWriting(false));
+    document.querySelector("#focusMarkDraft").addEventListener("click", () => {
+      applyAutomaticMarks(true);
+      showDraftReview(false);
+      save();
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && document.body.classList.contains("focus-writing")) setFocusWriting(false);
+    });
     document.querySelector("#cancelPrintOptions").addEventListener("click", closePrintOptions);
     document.querySelector("#confirmPrintOptions").addEventListener("click", printSelectedSections);
     els.printOptions.addEventListener("click", event => {
