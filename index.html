@@ -603,6 +603,7 @@
     .hidden { display: none; }
     .toast { position: fixed; right: 18px; bottom: 18px; padding: 11px 14px; border-radius: 8px; background: #17222a; color: #fff; box-shadow: var(--shadow); opacity: 0; transform: translateY(8px); pointer-events: none; transition: 180ms ease; }
     .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.achievement { background: linear-gradient(135deg, var(--sage), var(--gold)); color: #fff; font-weight: 850; }
     .print-options, .download-options {
       position: fixed;
       inset: 0;
@@ -1043,6 +1044,7 @@
     const exampleStoriesKey = "essayWritingStudio.exampleStories.v1";
     const customWordsKey = "essayWritingStudio.customWords.v1";
     const customPhrasesKey = "essayWritingStudio.customPhrases.v1";
+    const announcedBadgesKey = "essayWritingStudio.announcedBadges.v1";
     const processStages = [
       ["plan", "Plan"],
       ["draft", "Draft"],
@@ -1300,6 +1302,7 @@
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let speechRecognition = null;
     let voiceIsListening = false;
+    let questAlertsReady = false;
     const questBadges = [
       { id: "planner", name: "Planner", points: 10, description: "Saved a plan before drafting.", earned: context => context.savedStages.has("plan") },
       { id: "drafter", name: "Drafter", points: 10, description: "Wrote at least 100 words.", earned: context => context.profile.wordCount >= 100 },
@@ -1432,10 +1435,38 @@
       return { similes, metaphors, personification, onomatopoeia, alliteration, hyperbole, total: similes + metaphors + personification + onomatopoeia + alliteration + hyperbole };
     }
 
-    function toast(message) {
+    function toast(message, options = {}) {
       els.toast.textContent = message;
+      els.toast.classList.toggle("achievement", Boolean(options.achievement));
       els.toast.classList.add("show");
-      window.setTimeout(() => els.toast.classList.remove("show"), 1800);
+      window.setTimeout(() => {
+        els.toast.classList.remove("show");
+        els.toast.classList.remove("achievement");
+      }, options.duration || 1800);
+    }
+
+    function readAnnouncedBadges() {
+      try {
+        const badges = JSON.parse(localStorage.getItem(announcedBadgesKey) || "[]");
+        return Array.isArray(badges) ? badges : [];
+      } catch { return []; }
+    }
+
+    function writeAnnouncedBadges(badges) {
+      try { localStorage.setItem(announcedBadgesKey, JSON.stringify(badges)); } catch {}
+    }
+
+    function announceNewBadges(earnedBadges) {
+      if (!els.toast) return;
+      const announced = new Set(readAnnouncedBadges());
+      const newlyEarned = earnedBadges.filter(badge => !announced.has(badge.id));
+      if (!newlyEarned.length) return;
+      newlyEarned.forEach(badge => announced.add(badge.id));
+      writeAnnouncedBadges([...announced]);
+      if (!questAlertsReady) return;
+      const badge = newlyEarned.at(-1);
+      const extra = newlyEarned.length > 1 ? ` and ${newlyEarned.length - 1} more` : "";
+      toast(`Achievement unlocked: ${badge.name}${extra}`, { achievement: true, duration: 3200 });
     }
 
     function trackEvent(name, details = {}) {
@@ -2035,6 +2066,7 @@
       const progress = Math.round((points / totalPoints) * 100);
       const level = points >= 90 ? "Published Writer" : points >= 65 ? "Skilled Reviser" : points >= 40 ? "Growing Writer" : points >= 15 ? "Draft Builder" : "Starting";
       const nextMissions = missions.filter(mission => !mission.complete).slice(0, 3);
+      announceNewBadges(earnedBadges);
       els.questPoints.textContent = `${points} pts`;
       els.questSummary.textContent = `${completedMissions}/${missions.length} missions complete. ${earnedBadges.length} badge${earnedBadges.length === 1 ? "" : "s"} earned.`;
       els.questProgress.style.width = `${progress}%`;
@@ -2917,6 +2949,7 @@
       renderAll(saved.outline, saved.scores);
       updateStats();
       if (els.draft.value.trim()) applyAutomaticMarks();
+      questAlertsReady = true;
     }
 
     document.querySelectorAll(".tab").forEach(tab => {
